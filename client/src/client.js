@@ -3,10 +3,11 @@ const setMessage = message => {
 }
 
 const sock = io();
-
+let canMove = true;
 sock.on('message', setMessage);
 sock.on('move', ([x, y]) => {
-  document.querySelector(`[data-x='${x}'][data-y='${y}']`).innerHTML = 'O'
+  document.querySelector(`[data-x='${x}'][data-y='${y}']`).innerHTML = 'O';
+  canMove = true
 });
 
 
@@ -14,7 +15,10 @@ const move = (x, y) => sock.emit('move', [x, y])
 
 document.querySelectorAll('.cell').forEach(cell => {
   cell.addEventListener('click', () => {
-    cell.innerHTML = 'X'
-    move(cell.dataset.x, cell.dataset.y)
+    if (cell.innerHTML === '' && canMove) {
+      cell.innerHTML = 'X'
+      move(cell.dataset.x, cell.dataset.y)
+      canMove = false;
+    }
   })
 })
