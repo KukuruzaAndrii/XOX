@@ -3,7 +3,22 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 const loader = new THREE.GLTFLoader();
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 // const gui = new dat.GUI({ width: 300 })
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
+
+const updateGlobalMouse = (x, y) => {
+  mouse.x = x
+  mouse.y = y
+}
+
+const moveCameraWithMouse = (camera, mouse) => {
+  const { x, y } = mouse
+  camera.position.x = 1.5 * x
+  camera.position.z = -1.5 * y
+  camera.rotation.y = Math.PI * x / 20;
+  camera.rotation.x = -Math.PI / 2 - Math.PI * y / 20;
+}
 const setLight = () => {
   // const light = new THREE.DirectionalLight(0xdddddd, 0.8);
   //
@@ -36,8 +51,8 @@ const setLight = () => {
   // scene.add(dirLightHeper2);
 
   // var sphere = new THREE.SphereBufferGeometry( 0.1, 16, 8 )
-  const light = new THREE.PointLight(0xffffff, 3, 20);
-  light.position.set(0, 12, 0)
+  const light = new THREE.PointLight(0xff00ff, 3, 50);
+  light.position.set(0, 13, 0)
   // light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
   scene.add(light);
 
@@ -60,17 +75,19 @@ const setCamera = () => {
 
 const setControls = domElement => {
   domElement.addEventListener('mousemove', e => {
-    // console.log(e)
     const { clientX, clientY } = e
-    const decartX = (2 * clientX / window.innerWidth - 1).toFixed(3)
-    const decartY = (2 * clientY / window.innerHeight - 1).toFixed(3)
-    console.log(decartX, decartY)
-    camera.position.x = 1.5 * decartX
-    camera.position.z = 1.5 * decartY
-    camera.rotation.y = Math.PI * decartX / 20;
-    camera.rotation.x = -Math.PI / 2 + Math.PI * decartY / 20;
+    const normalizeX = (2 * clientX / window.innerWidth - 1)
+    const normalizeY = -(2 * clientY / window.innerHeight - 1)
 
+    updateGlobalMouse(normalizeX, normalizeY)
+    moveCameraWithMouse(camera, mouse)
   })
+}
+
+const onWindowResize = () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 const init = () => {
@@ -105,13 +122,22 @@ const init = () => {
   // folderLight.add(light, 'intensity', 0, 5).listen();
   // folderLight.addColor(light, 'color').listen();
 
-
+  window.addEventListener('resize', onWindowResize, false);
   document.body.appendChild(renderer.domElement)
 }
 const animate = () => {
   requestAnimationFrame(animate);
 
   // gltfO.rotation.x += 0.01;
+  raycaster.setFromCamera(mouse, camera);
+
+  // calculate objects intersecting the picking ray
+  var intersects = raycaster.intersectObjects(scene.children);
+  console.log(intersects)
+  for (var i = 0; i < intersects.length; i++) {
+    intersects[i].object.material.color.set(0xff0000);
+  }
+
 
   renderer.render(scene, camera);
 }
@@ -120,8 +146,8 @@ init()
 animate()
 
 
-let grid
-loader.load('models/grid3.glb', function (gltf) {
+// let grid
+loader.load('models/grid4.glb', function (gltf) {
 debugger
   // let parameters = {
   // map: imgTexture,
@@ -153,13 +179,27 @@ debugger
   });
   // gltf.scene.children[0].children.forEach(({ geometry }) => geometry.computeVertexNormals())
   // grid = new THREE.Mesh(gltf.scene.children[0].geometry, material)
-  grid = new THREE.Mesh(gltf.scene.children[0].children[0].geometry, material)
-  grid2 = new THREE.Mesh(gltf.scene.children[0].children[1].geometry, material)
-  grid3 = new THREE.Mesh(gltf.scene.children[0].children[2].geometry, material)
+  const grid = new THREE.Mesh(gltf.scene.children[0].children[0].geometry, material)
+  const grid2 = new THREE.Mesh(gltf.scene.children[0].children[1].geometry, material)
+  const grid3 = new THREE.Mesh(gltf.scene.children[0].children[2].geometry, material)
+  const placeholder = new THREE.Mesh(gltf.scene.children[1].geometry, material)
 
+  const pl = []
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      if (!(i === 0 && j === 0)) {
+        const clone = placeholder.clone()
+        clone.position.x += 6 * i
+        clone.position.z += 6 * j
+        pl.push(clone)
+      }
+    }
+  }
+  pl.forEach(pl => scene.add(pl))
   scene.add(grid);
   scene.add(grid2);
   scene.add(grid3);
+  scene.add(placeholder);
 }, undefined, function (error) {
 
   console.error(error);
