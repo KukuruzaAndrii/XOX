@@ -4,10 +4,15 @@ const socketio = require('socket.io')
 const path = require('path')
 const XOXGame = require('./xox')
 
-const app = express()
-const clientPath = path.resolve(__dirname, '..', 'static')
+const port = process.env.PORT || 8080
 
+const app = express()
+
+const clientPath = path.resolve(__dirname, '..', 'static')
 app.use(express.static(clientPath))
+app.use('/three', express.static(path.resolve(__dirname, '..', 'node_modules/three/build')))
+app.use('/three/js', express.static(path.resolve(__dirname, '..', 'node_modules/three/examples/js')))
+
 const server = http.createServer(app)
 
 const io = socketio(server)
@@ -30,8 +35,8 @@ server.on('error', err => {
   console.error('Server error', err)
 })
 
-server.listen(8080, () => {
-  console.log('**XOX started on 8080**')
+server.listen(port, () => {
+  console.log(`**XOX started on ${port}**`)
 })
 
 const startGame = (p1, p2) => {

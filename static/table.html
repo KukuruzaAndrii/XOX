@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XOX</title>
+    <link rel="stylesheet" href="css/styleTable.css">
+    <link rel="icon"
+          type="image/ico"
+          href="favicon.ico">
+</head>
+<body>
+<header>
+    <h1>Welcome to XOX</h1>
+    <h3 id="message"></h3>
+</header>
+<div class="container">
+    <div class="row">
+        <div class="cell" data-x="0" data-y="0"></div>
+        <div class="cell" data-x="0" data-y="1"></div>
+        <div class="cell" data-x="0" data-y="2"></div>
+    </div>
+    <div class="row">
+        <div class="cell" data-x="1" data-y="0"></div>
+        <div class="cell" data-x="1" data-y="1"></div>
+        <div class="cell" data-x="1" data-y="2"></div>
+    </div>
+    <div class="row">
+        <div class="cell" data-x="2" data-y="0"></div>
+        <div class="cell" data-x="2" data-y="1"></div>
+        <div class="cell" data-x="2" data-y="2"></div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="src/clientTable.js"></script>
+</body>
+</html>
