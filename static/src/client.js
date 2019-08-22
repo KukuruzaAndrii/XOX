@@ -5,6 +5,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true })
 // const gui = new dat.GUI({ width: 300 })
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+const places = []
 
 
 const updateGlobalMouse = (x, y) => {
@@ -130,12 +131,20 @@ const animate = () => {
 
   // gltfO.rotation.x += 0.01;
   raycaster.setFromCamera(mouse, camera);
-
-  // calculate objects intersecting the picking ray
-  var intersects = raycaster.intersectObjects(scene.children);
+// debugger
+  const intersects = raycaster.intersectObjects(places);
+  // some wrong with first check intersect after grid and places is loaded, and intersectObjects return all objects
+  if (intersects.length === places.length) return
+  if (intersects.length === 1) {
+    const [{ object }] = intersects
+    object.material.opacity = 0.1
+  } else {
+    places.forEach(pl => pl.material.opacity = 0)
+  }
   console.log(intersects)
-  for (var i = 0; i < intersects.length; i++) {
-    intersects[i].object.material.color.set(0xff0000);
+  for (let i = 0; i < intersects.length; i++) {
+    // intersects[i].object.material.color.set(0xff0000);
+    // intersects[i].object.visible = false
   }
 
 
@@ -148,7 +157,7 @@ animate()
 
 // let grid
 loader.load('models/grid4.glb', function (gltf) {
-debugger
+// debugger
   // let parameters = {
   // map: imgTexture,
   // bumpMap: imgTexture,
@@ -159,7 +168,7 @@ debugger
   // shininess: 800,
   // envMap: alphaIndex % 2 === 0 ? null : reflectionCube
   // }
-  // const material = new THREE.MeshToonMaterial(parameters);
+  // const gridMaterial = new THREE.MeshToonMaterial(parameters);
 
   // const folderMaterial = gui.addFolder('Material')
   // folderMaterial.add(parameters, 'bumpScale', -1, 3).listen();
@@ -169,7 +178,7 @@ debugger
   // folderMaterial.add(parameters, 'shininess', 0, 1000).listen();
 
 
-  const material = new THREE.MeshStandardMaterial({
+  const gridMaterial = new THREE.MeshStandardMaterial({
     color: 0x3e50af,
     // emissive: 0x451dba,
     // emissiveIntensity: 0.3,
@@ -178,28 +187,38 @@ debugger
     shading: THREE.SmoothShading
   });
   // gltf.scene.children[0].children.forEach(({ geometry }) => geometry.computeVertexNormals())
-  // grid = new THREE.Mesh(gltf.scene.children[0].geometry, material)
-  const grid = new THREE.Mesh(gltf.scene.children[0].children[0].geometry, material)
-  const grid2 = new THREE.Mesh(gltf.scene.children[0].children[1].geometry, material)
-  const grid3 = new THREE.Mesh(gltf.scene.children[0].children[2].geometry, material)
-  const placeholder = new THREE.Mesh(gltf.scene.children[1].geometry, material)
+  // grid = new THREE.Mesh(gltf.scene.children[0].geometry, gridMaterial)
+  const grid = new THREE.Mesh(gltf.scene.children[0].children[0].geometry, gridMaterial)
+  const grid2 = new THREE.Mesh(gltf.scene.children[0].children[1].geometry, gridMaterial)
+  const grid3 = new THREE.Mesh(gltf.scene.children[0].children[2].geometry, gridMaterial)
 
-  const pl = []
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
-      if (!(i === 0 && j === 0)) {
-        const clone = placeholder.clone()
-        clone.position.x += 6 * i
-        clone.position.z += 6 * j
-        pl.push(clone)
-      }
-    }
-  }
-  pl.forEach(pl => scene.add(pl))
   scene.add(grid);
   scene.add(grid2);
   scene.add(grid3);
-  scene.add(placeholder);
+
+  for (let i = -1; i < 2; i++) {
+    for (let j = -1; j < 2; j++) {
+      const placeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x3e50af,
+        // emissive: 0x451dba,
+        // emissiveIntensity: 0.3,
+        roughness: 0.1,
+        metalness: 0.2,
+        shading: THREE.SmoothShading,
+        transparent: true,
+        opacity: 0.0
+      })
+      const placeholder = new THREE.Mesh(gltf.scene.children[1].geometry, placeMaterial)
+
+      placeholder.position.x += 6 * i
+      placeholder.position.z += 6 * j
+      // clone.visible = false
+      places.push(placeholder)
+
+    }
+  }
+  places.forEach(pl => scene.add(pl))
+
 }, undefined, function (error) {
 
   console.error(error);
