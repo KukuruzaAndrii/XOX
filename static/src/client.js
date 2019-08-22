@@ -138,8 +138,7 @@ const animate = () => {
   if (intersects.length === 1) {
     const [{ object }] = intersects
     object.material.opacity = 0.1
-  } else {
-    places.forEach(pl => pl.material.opacity = 0)
+    places.filter(pl => pl !== object).forEach(pl => pl.material.opacity = 0)
   }
   console.log(intersects)
   for (let i = 0; i < intersects.length; i++) {
