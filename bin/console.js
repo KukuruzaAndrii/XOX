@@ -10,7 +10,7 @@ const startConsole = () => {
   while (game.checkStatus().status === 'continue') {
     player = player === 'x' ? 'o' : 'x'
     let move = { isSuccess: false }
-    while (!move.isSucces) {
+    while (!move.isSuccess) {
       console.log(`Player ${player} move`)
       const cell = readlineSync.keyIn('Enter cell:', { limit: '$<1-9>' })
       const x = 2 - Math.floor((cell - 1) / 3)
