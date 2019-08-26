@@ -146,8 +146,16 @@ const animate = () => {
     const [{ object }] = intersects
     object.material.opacity = 0.1
     places.filter(pl => pl !== object).forEach(pl => pl.material.opacity = 0)
+    if (isClick && canMove) {
+      const { x, y } = object
+      console.log(x, y)
+      moveFirst(meshes, x, y)
+      move(x, y)
+      isClick = false
+      canMove = false
+    }
   }
-  console.log(intersects)
+  // console.log(intersects)
   for (let i = 0; i < intersects.length; i++) {
     // intersects[i].object.material.color.set(0xff0000);
     // intersects[i].object.visible = false
@@ -161,7 +169,43 @@ init()
 animate()
 
 
-// let grid
+const moveFirst = (meshes, x, y) => {
+  const XGeometry = meshes.find(({ name }) => name === 'x').geometry
+  const XMaterial = new THREE.MeshStandardMaterial({
+    color: 0x21f8ff,
+    // emissive: 0x451dba,
+    // emissiveIntensity: 0.3,
+    roughness: 0.05,
+    metalness: 0.3,
+    shading: THREE.SmoothShading
+  })
+  const XFigure = new THREE.Mesh(XGeometry, XMaterial)
+  // move to global
+  XFigure.rotation.y = Math.PI / 4;
+
+  XFigure.position.x += 6 * (x - 1)
+  XFigure.position.z += 6 * (y - 1)
+
+  scene.add(XFigure);
+}
+
+const moveSecond = (meshes, x, y) => {
+  const OGeometry = meshes.find(({ name }) => name === 'o').geometry
+  const OMaterial = new THREE.MeshStandardMaterial({
+    color: 0xda4efc,
+    // emissive: 0x451dba,
+    // emissiveIntensity: 0.3,
+    roughness: 0.05,
+    metalness: 0.3,
+    shading: THREE.SmoothShading
+  })
+  const OFigure = new THREE.Mesh(OGeometry, OMaterial)
+  OFigure.position.x += 6 * (x - 1)
+  OFigure.position.z += 6 * (y - 1)
+  scene.add(OFigure);
+}
+
+let meshes
 loader.load('models/grid6.glb', function (gltf) {
   // debugger
   // let parameters = {
@@ -193,39 +237,13 @@ loader.load('models/grid6.glb', function (gltf) {
     shading: THREE.SmoothShading
   })
 
-  const meshes = gltf.scene.children
+  meshes = gltf.scene.children
 
   const grid = meshes.find(({ name }) => name === 'grid')
-  grid.children.forEach(({geometry}) => {
+  grid.children.forEach(({ geometry }) => {
     const partGrid = new THREE.Mesh(geometry, gridMaterial)
     scene.add(partGrid);
   })
-
-  const XGeometry = meshes.find(({ name }) => name === 'x').geometry
-  const XMaterial = new THREE.MeshStandardMaterial({
-    color: 0x21f8ff,
-    // emissive: 0x451dba,
-    // emissiveIntensity: 0.3,
-    roughness: 0.05,
-    metalness: 0.3,
-    shading: THREE.SmoothShading
-  })
-  const XFigure = new THREE.Mesh(XGeometry, XMaterial)
-  XFigure.position.x += 6
-  scene.add(XFigure);
-
-  const OGeometry = meshes.find(({ name }) => name === 'o').geometry
-  const OMaterial = new THREE.MeshStandardMaterial({
-    color: 0xda4efc,
-    // emissive: 0x451dba,
-    // emissiveIntensity: 0.3,
-    roughness: 0.05,
-    metalness: 0.3,
-    shading: THREE.SmoothShading
-  })
-  const OFigure = new THREE.Mesh(OGeometry, OMaterial)
-  OFigure.position.z += 6
-  scene.add(OFigure);
 
   for (let i = -1; i < 2; i++) {
     for (let j = -1; j < 2; j++) {
@@ -266,19 +284,19 @@ const sock = io()
 let canMove = true
 sock.on('message', setMessage)
 sock.on('move', ([x, y]) => {
-  document.querySelector(`[data-x='${x}'][data-y='${y}']`).innerHTML = 'O'
+  moveSecond(meshes, x, y)
   canMove = true
 })
 sock.on('win')
 
 const move = (x, y) => sock.emit('move', [x, y])
 
-document.querySelectorAll('.cell').forEach(cell => {
-  cell.addEventListener('click', () => {
-    if (cell.innerHTML === '' && canMove) {
-      cell.innerHTML = 'X'
-      move(cell.dataset.x, cell.dataset.y)
-      canMove = false
-    }
-  })
-})
+// document.querySelectorAll('.cell').forEach(cell => {
+//   cell.addEventListener('click', () => {
+//     if (cell.innerHTML === '' && canMove) {
+//       cell.innerHTML = 'X'
+//       move(cell.dataset.x, cell.dataset.y)
+//       canMove = false
+//     }
+//   })
+// })
