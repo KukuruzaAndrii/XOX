@@ -6,8 +6,8 @@ const renderer = new THREE.WebGLRenderer({ antialias: true })
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const places = []
-
-
+const stats = new Stats();
+let isClick = false
 const updateGlobalMouse = (x, y) => {
   mouse.x = x
   mouse.y = y
@@ -91,6 +91,11 @@ const onWindowResize = () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function onClick () {
+  // console.log('click')
+  isClick = true
+}
+
 const init = () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -124,11 +129,13 @@ const init = () => {
   // folderLight.addColor(light, 'color').listen();
 
   window.addEventListener('resize', onWindowResize, false);
+  window.addEventListener('click', onClick, false);
   document.body.appendChild(renderer.domElement)
+  document.body.appendChild(stats.dom)
 }
 const animate = () => {
   requestAnimationFrame(animate);
-
+  stats.update();
   // gltfO.rotation.x += 0.01;
   raycaster.setFromCamera(mouse, camera);
 // debugger
@@ -155,8 +162,8 @@ animate()
 
 
 // let grid
-loader.load('models/grid4.glb', function (gltf) {
-// debugger
+loader.load('models/grid6.glb', function (gltf) {
+  // debugger
   // let parameters = {
   // map: imgTexture,
   // bumpMap: imgTexture,
@@ -184,16 +191,41 @@ loader.load('models/grid4.glb', function (gltf) {
     roughness: 0.1,
     metalness: 0.2,
     shading: THREE.SmoothShading
-  });
-  // gltf.scene.children[0].children.forEach(({ geometry }) => geometry.computeVertexNormals())
-  // grid = new THREE.Mesh(gltf.scene.children[0].geometry, gridMaterial)
-  const grid = new THREE.Mesh(gltf.scene.children[0].children[0].geometry, gridMaterial)
-  const grid2 = new THREE.Mesh(gltf.scene.children[0].children[1].geometry, gridMaterial)
-  const grid3 = new THREE.Mesh(gltf.scene.children[0].children[2].geometry, gridMaterial)
+  })
 
-  scene.add(grid);
-  scene.add(grid2);
-  scene.add(grid3);
+  const meshes = gltf.scene.children
+
+  const grid = meshes.find(({ name }) => name === 'grid')
+  grid.children.forEach(({geometry}) => {
+    const partGrid = new THREE.Mesh(geometry, gridMaterial)
+    scene.add(partGrid);
+  })
+
+  const XGeometry = meshes.find(({ name }) => name === 'x').geometry
+  const XMaterial = new THREE.MeshStandardMaterial({
+    color: 0x21f8ff,
+    // emissive: 0x451dba,
+    // emissiveIntensity: 0.3,
+    roughness: 0.05,
+    metalness: 0.3,
+    shading: THREE.SmoothShading
+  })
+  const XFigure = new THREE.Mesh(XGeometry, XMaterial)
+  XFigure.position.x += 6
+  scene.add(XFigure);
+
+  const OGeometry = meshes.find(({ name }) => name === 'o').geometry
+  const OMaterial = new THREE.MeshStandardMaterial({
+    color: 0xda4efc,
+    // emissive: 0x451dba,
+    // emissiveIntensity: 0.3,
+    roughness: 0.05,
+    metalness: 0.3,
+    shading: THREE.SmoothShading
+  })
+  const OFigure = new THREE.Mesh(OGeometry, OMaterial)
+  OFigure.position.z += 6
+  scene.add(OFigure);
 
   for (let i = -1; i < 2; i++) {
     for (let j = -1; j < 2; j++) {
@@ -207,8 +239,9 @@ loader.load('models/grid4.glb', function (gltf) {
         transparent: true,
         opacity: 0.0
       })
-      const placeholder = new THREE.Mesh(gltf.scene.children[1].geometry, placeMaterial)
-
+      const placeholder = new THREE.Mesh(meshes[1].geometry, placeMaterial)
+      placeholder.x = i + 1
+      placeholder.y = j + 1
       placeholder.position.x += 6 * i
       placeholder.position.z += 6 * j
       // clone.visible = false
