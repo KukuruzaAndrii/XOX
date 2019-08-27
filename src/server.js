@@ -18,9 +18,15 @@ const server = http.createServer(app)
 const io = socketio(server)
 
 let waitingPlayer = null
-
+let countOnline = 0
 io.on('connection', sock => {
-  console.log('static connected')
+  console.log('player connected')
+  countOnline += 1
+  io.emit('countOnline', countOnline)
+  sock.on('disconnect', () => {
+    countOnline -= 1
+    io.emit('countOnline', countOnline)
+  })
 
   if (waitingPlayer) {
     [sock, waitingPlayer].forEach(s => s.emit('message', 'Let the game begin!'))
@@ -45,7 +51,7 @@ const startGame = (p1, p2) => {
     p1.on('move', ([x, y]) => {
       const move = game.playerMove(playerSign, x, y)
       if (move.isSuccess) {
-        console.log(game.move, x, y)
+        console.log(move, x, y)
         p2.emit('move', [x, y])
         const { status } = game.checkStatus()
         switch (status) {

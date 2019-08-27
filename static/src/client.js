@@ -1,13 +1,15 @@
+/* global THREE Stats io */
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-const loader = new THREE.GLTFLoader();
+const loader = new THREE.GLTFLoader()
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 // const gui = new dat.GUI({ width: 300 })
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster()
+const mouse = new THREE.Vector2()
 const places = []
-const stats = new Stats();
+const stats = new Stats()
 let isClick = false
+
 const updateGlobalMouse = (x, y) => {
   mouse.x = x
   mouse.y = y
@@ -17,8 +19,8 @@ const moveCameraWithMouse = (camera, mouse) => {
   const { x, y } = mouse
   camera.position.x = 1.5 * x
   camera.position.z = -1.5 * y
-  camera.rotation.y = Math.PI * x / 20;
-  camera.rotation.x = -Math.PI / 2 - Math.PI * y / 20;
+  camera.rotation.y = Math.PI * x / 20
+  camera.rotation.x = -Math.PI / 2 - Math.PI * y / 20
 }
 const setLight = () => {
   // const light = new THREE.DirectionalLight(0xdddddd, 0.8);
@@ -36,31 +38,29 @@ const setLight = () => {
   //
   // scene.add(ambientLight);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(-1, 1.75, 1);
-  dirLight.position.multiplyScalar(15);
-  scene.add(dirLight);
-  const dirLightHeper = new THREE.DirectionalLightHelper(dirLight, 5);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1)
+  dirLight.position.set(-1, 1.75, 1)
+  dirLight.position.multiplyScalar(15)
+  scene.add(dirLight)
+  // const dirLightHeper = new THREE.DirectionalLightHelper(dirLight, 5)
   // scene.add(dirLightHeper);
 
-
-  const dirLight2 = new THREE.DirectionalLight(0xffffff, 1.3);
-  dirLight2.position.set(0.5, 1.75, -2);
-  dirLight2.position.multiplyScalar(15);
-  scene.add(dirLight2);
-  const dirLightHeper2 = new THREE.DirectionalLightHelper(dirLight2, 5);
+  const dirLight2 = new THREE.DirectionalLight(0xffffff, 1.3)
+  dirLight2.position.set(0.5, 1.75, -2)
+  dirLight2.position.multiplyScalar(15)
+  scene.add(dirLight2)
+  // const dirLightHeper2 = new THREE.DirectionalLightHelper(dirLight2, 5)
   // scene.add(dirLightHeper2);
 
   // var sphere = new THREE.SphereBufferGeometry( 0.1, 16, 8 )
-  const light = new THREE.PointLight(0xff00ff, 3, 50);
+  const light = new THREE.PointLight(0xff00ff, 3, 50)
   light.position.set(0, 13, 0)
   // light.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xffffff } ) ) );
-  scene.add(light);
+  scene.add(light)
 
   // const light = new THREE.DirectionalLight(0xffffff, 0.5);
 
   // light.position.set(-2, 10, 5);
-
 
   // scene.add(hemiLight);
   // scene.add(light)
@@ -70,8 +70,8 @@ const setLight = () => {
 }
 
 const setCamera = () => {
-  camera.position.y = 17;
-  camera.rotation.x = -Math.PI / 2;
+  camera.position.y = 17
+  camera.rotation.x = -Math.PI / 2
 }
 
 const setControls = domElement => {
@@ -86,9 +86,9 @@ const setControls = domElement => {
 }
 
 const onWindowResize = () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
 function onClick () {
@@ -120,7 +120,6 @@ const init = () => {
   // controls.maxDistance = 50;
   // controls.maxPolarAngle = Math.PI / 2;
 
-
   // const folderLight = gui.addFolder('Light')
   // folderLight.add(light.position, 'x', -5, 5).listen();
   // folderLight.add(light.position, 'y', -5, 15).listen();
@@ -128,31 +127,32 @@ const init = () => {
   // folderLight.add(light, 'intensity', 0, 5).listen();
   // folderLight.addColor(light, 'color').listen();
 
-  window.addEventListener('resize', onWindowResize, false);
-  window.addEventListener('click', onClick, false);
+  window.addEventListener('resize', onWindowResize, false)
+  window.addEventListener('click', onClick, false)
   document.body.appendChild(renderer.domElement)
   document.body.appendChild(stats.dom)
 }
 const animate = () => {
-  requestAnimationFrame(animate);
-  stats.update();
+  // eslint-disable-next-line no-undef
+  requestAnimationFrame(animate)
+  stats.update()
   // gltfO.rotation.x += 0.01;
-  raycaster.setFromCamera(mouse, camera);
-// debugger
-  const intersects = raycaster.intersectObjects(places);
+  raycaster.setFromCamera(mouse, camera)
+  // debugger
+  const intersects = raycaster.intersectObjects(places)
   // some wrong with first check intersect after grid and places is loaded, and intersectObjects return all objects
   if (intersects.length === places.length) return
   if (intersects.length === 1) {
     const [{ object }] = intersects
     object.material.opacity = 0.1
-    places.filter(pl => pl !== object).forEach(pl => pl.material.opacity = 0)
+    places.filter(pl => pl !== object).forEach(pl => {
+      pl.material.opacity = 0
+    })
     if (isClick && canMove) {
       const { x, y } = object
       console.log(x, y)
-      moveFirst(meshes, x, y)
       move(x, y)
       isClick = false
-      canMove = false
     }
   }
   // console.log(intersects)
@@ -161,13 +161,11 @@ const animate = () => {
     // intersects[i].object.visible = false
   }
 
-
-  renderer.render(scene, camera);
+  renderer.render(scene, camera)
 }
 
 init()
 animate()
-
 
 const moveFirst = (meshes, x, y) => {
   const XGeometry = meshes.find(({ name }) => name === 'x').geometry
@@ -181,12 +179,12 @@ const moveFirst = (meshes, x, y) => {
   })
   const XFigure = new THREE.Mesh(XGeometry, XMaterial)
   // move to global
-  XFigure.rotation.y = Math.PI / 4;
+  XFigure.rotation.y = Math.PI / 4
 
   XFigure.position.x += 6 * (x - 1)
   XFigure.position.z += 6 * (y - 1)
 
-  scene.add(XFigure);
+  scene.add(XFigure)
 }
 
 const moveSecond = (meshes, x, y) => {
@@ -202,7 +200,7 @@ const moveSecond = (meshes, x, y) => {
   const OFigure = new THREE.Mesh(OGeometry, OMaterial)
   OFigure.position.x += 6 * (x - 1)
   OFigure.position.z += 6 * (y - 1)
-  scene.add(OFigure);
+  scene.add(OFigure)
 }
 
 let meshes
@@ -227,7 +225,6 @@ loader.load('models/grid6.glb', function (gltf) {
   // folderMaterial.add(parameters, 'reflectivity', 0, 1).listen();
   // folderMaterial.add(parameters, 'shininess', 0, 1000).listen();
 
-
   const gridMaterial = new THREE.MeshStandardMaterial({
     color: 0x3e50af,
     // emissive: 0x451dba,
@@ -242,7 +239,7 @@ loader.load('models/grid6.glb', function (gltf) {
   const grid = meshes.find(({ name }) => name === 'grid')
   grid.children.forEach(({ geometry }) => {
     const partGrid = new THREE.Mesh(geometry, gridMaterial)
-    scene.add(partGrid);
+    scene.add(partGrid)
   })
 
   for (let i = -1; i < 2; i++) {
@@ -264,32 +261,34 @@ loader.load('models/grid6.glb', function (gltf) {
       placeholder.position.z += 6 * j
       // clone.visible = false
       places.push(placeholder)
-
     }
   }
   places.forEach(pl => scene.add(pl))
-
 }, undefined, function (error) {
+  console.error(error)
+})
 
-  console.error(error);
-
-});
-
-
-const setMessage = message => {
-  console.log(message)
+const setMessage = (id, message) => {
+  document.querySelector(`#${id}`).innerHTML = message
 }
 
 const sock = io()
 let canMove = true
-sock.on('message', setMessage)
+sock.on('message', text => setMessage('message', text))
+sock.on('countOnline', number => setMessage('countOnline', number))
 sock.on('move', ([x, y]) => {
   moveSecond(meshes, x, y)
   canMove = true
+  setMessage('message', 'Your turn!')
 })
 sock.on('win')
 
-const move = (x, y) => sock.emit('move', [x, y])
+const move = (x, y) => {
+  sock.emit('move', [x, y])
+  moveFirst(meshes, x, y)
+  canMove = false
+  setMessage('message', 'Opponent turn!')
+}
 
 // document.querySelectorAll('.cell').forEach(cell => {
 //   cell.addEventListener('click', () => {

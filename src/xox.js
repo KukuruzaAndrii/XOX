@@ -26,7 +26,7 @@ module.exports = class XOXGame {
     this.board[x][y] = player
     this.lastPlayer = player
     return {
-      isSuccess: true,
+      isSuccess: true
     }
   }
 
@@ -36,10 +36,10 @@ module.exports = class XOXGame {
       const pl = players[i]
       for (let x = 0; x < this.board.length; x++) {
         if (
-          (this.board[x][0] === pl && this.board[x][1] === pl && this.board[x][2] === pl)
-          || (this.board[0][x] === pl && this.board[1][x] === pl && this.board[2][x] === pl)
-          || (this.board[0][0] === pl && this.board[1][1] === pl && this.board[2][2] === pl)
-          || (this.board[2][0] === pl && this.board[1][1] === pl && this.board[0][2] === pl)) {
+          (this.board[x][0] === pl && this.board[x][1] === pl && this.board[x][2] === pl) ||
+          (this.board[0][x] === pl && this.board[1][x] === pl && this.board[2][x] === pl) ||
+          (this.board[0][0] === pl && this.board[1][1] === pl && this.board[2][2] === pl) ||
+          (this.board[2][0] === pl && this.board[1][1] === pl && this.board[0][2] === pl)) {
           return {
             status: 'victory',
             winner: pl
