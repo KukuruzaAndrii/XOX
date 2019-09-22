@@ -10,8 +10,8 @@ const app = express()
 
 const clientPath = path.resolve(__dirname, '..', 'static')
 app.use(express.static(clientPath))
-app.use('/three', express.static(path.resolve(__dirname, '..', 'node_modules/three/build')))
-app.use('/three/js', express.static(path.resolve(__dirname, '..', 'node_modules/three/examples/js')))
+app.use('/build', express.static(path.resolve(__dirname, '..', 'node_modules/three/build')))
+app.use('/three/jsm', express.static(path.resolve(__dirname, '..', 'node_modules/three/examples/jsm')))
 
 const server = http.createServer(app)
 
@@ -29,7 +29,8 @@ io.on('connection', sock => {
   })
 
   if (waitingPlayer) {
-    [sock, waitingPlayer].forEach(s => s.emit('message', 'Let the game begin!'))
+    waitingPlayer.emit('start', 'first')
+    sock.emit('start', 'second')
     startGame(sock, waitingPlayer)
     waitingPlayer = null
   } else {
@@ -46,6 +47,7 @@ server.listen(port, () => {
 })
 
 const startGame = (p1, p2) => {
+  console.log('game started')
   const game = new XOXGame()
   const registerHandlers = (p1, p2, playerSign, game) => {
     p1.on('move', ([x, y]) => {
@@ -53,7 +55,7 @@ const startGame = (p1, p2) => {
       if (move.isSuccess) {
         console.log(move, x, y)
         p2.emit('move', [x, y])
-        const { status } = game.checkStatus()
+        const { status } = game.status()
         switch (status) {
           case 'draw':
             console.log('Draw!')
@@ -61,9 +63,12 @@ const startGame = (p1, p2) => {
             p2.emit('message', 'You lose! Same as your opponent')
             break
           case 'victory':
+            console.log('we have a winner!')
             p1.emit('message', 'You win! Congratulation!')
             p2.emit('message', 'You lose! Maybe next time...')
         }
+      } else {
+        // todo show error
       }
     })
   }

@@ -13,14 +13,14 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.2.0",
-    "three": "^0.107.0"
+    "socket.io": "^2.3.0",
+    "three": "^0.108.0"
   },
   "devDependencies": {
-    "heroku": "^7.29.0",
+    "heroku": "^7.30.0",
     "jest": "^24.9.0",
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.2",
     "readline-sync": "^1.4.10",
-    "standard": "^14.0.2"
+    "standard": "^14.3.1"
   }
 }

@@ -7,7 +7,7 @@ const startConsole = () => {
   const game = new XOXGame()
   console.log('Hi in XOX')
   let player = 'o'
-  while (game.checkStatus().status === 'continue') {
+  while (game.status().status === 'continue') {
     player = player === 'x' ? 'o' : 'x'
     let move = { isSuccess: false }
     while (!move.isSuccess) {
@@ -35,12 +35,12 @@ const startConsole = () => {
     }
     console.log(stringBoard(game.board))
   }
-  switch (game.checkStatus().status) {
+  switch (game.status().status) {
     case 'draw':
       console.log('Draw!')
       break
     case 'victory':
-      console.log(`Winner is ${game.checkStatus().winner}!
+      console.log(`Winner is ${game.status().winner}!
       Congratulation!`)
   }
 }
