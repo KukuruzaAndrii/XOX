@@ -1,7 +1,6 @@
 import { addX, addO, stats, rayCaster, mouse, camera, places, renderer, scene, init } from './3D.js'
 
 init()
-debugger
 const board = [
   ['', '', ''],
   ['', '', ''],
@@ -30,7 +29,6 @@ const animate = () => {
     })
     if (isClick) {
       const { x, y } = object
-      console.log(x, y)
       move(x, y)
       isClick = false
     }
@@ -47,7 +45,6 @@ animate()
 
 const sock = io()
 let canMove = false
-console.log('canMove', canMove)
 sock.on('message', text => setMessage('message', text))
 sock.on('countOnline', number => setMessage('countOnline', number))
 sock.on('start', status => {
@@ -71,7 +68,6 @@ sock.on('move', ([x, y]) => {
 sock.on('win')
 
 const move = (x, y) => {
-  console.log('canMove', canMove)
 
   if (!canMove || board[x][y] !== '') return
   board[x][y] = 'x'
