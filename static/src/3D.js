@@ -11,18 +11,22 @@ import {
   Mesh
 } from '../build/three.module.js'
 import { GLTFLoader } from '../three/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from '../three/jsm/loaders/DRACOLoader.js'
 import Stats from '../three/jsm/libs/stats.module.js'
 // import { Scene, PerspectiveCamera } from 'three'
 
 export const scene = new Scene()
 export const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-export const loader = new GLTFLoader()
 export const renderer = new WebGLRenderer({ antialias: true })
 export const rayCaster = new Raycaster()
 export const mouse = new Vector2()
 export const places = []
 export const stats = new Stats()
 
+const loader = new GLTFLoader()
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('../three/js/libs/draco/')
+loader.setDRACOLoader(dracoLoader)
 const updateGlobalMouse = (x, y) => {
   // console.log(x, y)
   mouse.x = x
@@ -178,7 +182,7 @@ export const addO = (x, y) => {
 }
 
 let meshes
-loader.load('models/grid6.glb', function (gltf) {
+loader.load('models/grid_x_o.glb', function (gltf) {
   // debugger
   // let parameters = {
   // map: imgTexture,
