@@ -29,8 +29,6 @@ io.on('connection', sock => {
   })
 
   if (waitingPlayer) {
-    waitingPlayer.emit('start', 'first')
-    sock.emit('start', 'second')
     startGame(sock, waitingPlayer)
     waitingPlayer = null
   } else {
@@ -46,32 +44,36 @@ server.listen(port, () => {
   console.log(`**XOX started on ${port}**`)
 })
 
-const startGame = (p1, p2) => {
+const startGame = (p1socket, p2socket) => {
   console.log('game started')
   const game = new XOXGame()
-  const registerHandlers = (p1, p2, playerSign, game) => {
-    p1.on('move', ([x, y]) => {
-      const move = game.playerMove(playerSign, x, y)
+  const registerHandlers = (p1socket, p2socket, playerOrder, game) => {
+    p1socket.emit('start', playerOrder)
+    p1socket.on('move', cmd => {
+      console.log(cmd)
+      const [x, y] = cmd.split('')
+      const move = game.playerMove(playerOrder, x, y)
       if (move.isSuccess) {
         console.log(move, x, y)
-        p2.emit('move', [x, y])
+        p2socket.emit('move', `${x}${y}`)
         const { status } = game.status()
         switch (status) {
           case 'draw':
             console.log('Draw!')
-            p1.emit('message', 'You lose! Same as your opponent')
-            p2.emit('message', 'You lose! Same as your opponent')
+            p1socket.emit('end', 'draw')
+            p2socket.emit('end', 'draw')
             break
           case 'victory':
             console.log('we have a winner!')
-            p1.emit('message', 'You win! Congratulation!')
-            p2.emit('message', 'You lose! Maybe next time...')
+            p1socket.emit('end', 'win')
+            p2socket.emit('end', 'lose')
         }
       } else {
-        // todo show error
+        console.error(playerOrder, move)
       }
     })
   }
-  registerHandlers(p1, p2, 'x', game)
-  registerHandlers(p2, p1, 'o', game)
+
+  registerHandlers(p1socket, p2socket, XOXGame.first, game)
+  registerHandlers(p2socket, p1socket, XOXGame.second, game)
 }

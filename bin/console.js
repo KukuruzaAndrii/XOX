@@ -45,7 +45,7 @@ const startConsole = () => {
   }
 }
 const stringBoard = board => {
-  const b = board
+  const b = board.map(row => row.map(cell => cell === '' ? ' ' : cell))
   return `
 +---+---+---+
 | ${b[0][0]} | ${b[0][1]} | ${b[0][2]} |

@@ -17,9 +17,9 @@
     "three": "^0.109.0"
   },
   "devDependencies": {
-    "heroku": "^7.33.0",
+    "heroku": "^7.33.3",
     "jest": "^24.9.0",
-    "nodemon": "^1.19.3",
+    "nodemon": "^1.19.4",
     "readline-sync": "^1.4.10",
     "standard": "^14.3.1"
   },

@@ -8,8 +8,11 @@ import {
   PointLight,
   MeshStandardMaterial,
   SmoothShading,
-  Mesh
+  Mesh,
+  PlaneGeometry,
+  AxesHelper
 } from '../build/three.module.js'
+// } from 'three'
 import { GLTFLoader } from '../three/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from '../three/jsm/loaders/DRACOLoader.js'
 import Stats from '../three/jsm/libs/stats.module.js'
@@ -20,7 +23,8 @@ export const camera = new PerspectiveCamera(75, window.innerWidth / window.inner
 export const renderer = new WebGLRenderer({ antialias: true })
 export const rayCaster = new Raycaster()
 export const mouse = new Vector2()
-export const places = []
+export let placeX
+export let placeO
 export const stats = new Stats()
 
 const loader = new GLTFLoader()
@@ -116,16 +120,23 @@ export const init = () => {
   setCamera()
   // renderer.shadowMap.enabled = true;
   // scene.background = new THREE.Color(0x8FBCD4)
-  // const geometry = new THREE.PlaneGeometry(50, 50, 32)
-  // const material = new THREE.MeshStandardMaterial({
-  //   color: 0x111111,
-  //   side: THREE.FrontSide,
-  //   roughness: 0.8
-  // })
-  // const material = new THREE.MeshBasicMaterial({ color: 0x2c2742, side: THREE.FrontSide })
-  // const plane = new THREE.Mesh(geometry, material);
-  // plane.rotation.x = -Math.PI / 2
-  // scene.add(plane);
+
+  // const axesHelper = new AxesHelper(10)
+  // scene.add(axesHelper)
+  const geometry = new PlaneGeometry(25, 25)
+  const material = new MeshStandardMaterial({
+    color: 0xaaaaaa,
+    // emissive: 0x451dba,
+    // emissiveIntensity: 0.3,
+    // roughness: 0.1,
+    // metalness: 0.2,
+    flatShading: SmoothShading,
+    transparent: true,
+    opacity: 0.0
+  })
+  const plane = new Mesh(geometry, material)
+  plane.rotation.x = -Math.PI / 2
+  scene.add(plane)
   // const axesHelper = new THREE.AxesHelper(25);
   setControls(renderer.domElement)
   // const controls = new THREE.OrbitControls(camera, renderer.domElement)
@@ -143,105 +154,147 @@ export const init = () => {
   window.addEventListener('resize', onWindowResize, false)
   document.body.appendChild(renderer.domElement)
   document.body.appendChild(stats.dom)
+
+  // for prevent show placeholder on (0,0) at load
+  updateGlobalMouse(-1000, -1000)
+  return plane
 }
+
+let XGeometry
+let OGeometry
+
+const xMaterialConf = {
+  color: 0x21f8ff,
+  // emissive: 0x451dba,
+  // emissiveIntensity: 0.3,
+  roughness: 0.05,
+  metalness: 0.3,
+  flatShading: true
+}
+const XMaterial = new MeshStandardMaterial(xMaterialConf)
+const oMaterialConf = {
+  color: 0xda4efc,
+  // emissive: 0x451dba,
+  // emissiveIntensity: 0.3,
+  roughness: 0.05,
+  metalness: 0.3,
+  flatShading: true
+}
+const OMaterial = new MeshStandardMaterial(oMaterialConf)
 
 export const addX = (x, y) => {
-  const XGeometry = meshes.find(({ name }) => name === 'x').geometry
-  const XMaterial = new MeshStandardMaterial({
-    color: 0x21f8ff,
-    // emissive: 0x451dba,
-    // emissiveIntensity: 0.3,
-    roughness: 0.05,
-    metalness: 0.3,
-    flatShading: SmoothShading
-  })
   const XFigure = new Mesh(XGeometry, XMaterial)
-  // move to global
   XFigure.rotation.y = Math.PI / 4
-
-  XFigure.position.x += 6 * (x - 1)
-  XFigure.position.z += 6 * (y - 1)
-
+  XFigure.position.x = 6 * (x - 1)
+  XFigure.position.z = 6 * (y - 1)
   scene.add(XFigure)
 }
-
 export const addO = (x, y) => {
-  const OGeometry = meshes.find(({ name }) => name === 'o').geometry
-  const OMaterial = new MeshStandardMaterial({
-    color: 0xda4efc,
-    // emissive: 0x451dba,
-    // emissiveIntensity: 0.3,
-    roughness: 0.05,
-    metalness: 0.3,
-    flatShading: SmoothShading
-  })
   const OFigure = new Mesh(OGeometry, OMaterial)
-  OFigure.position.x += 6 * (x - 1)
-  OFigure.position.z += 6 * (y - 1)
+  OFigure.position.x = 6 * (x - 1)
+  OFigure.position.z = 6 * (y - 1)
   scene.add(OFigure)
 }
+const gridMaterial = new MeshStandardMaterial({
+  color: 0x3e50af,
+  // emissive: 0x451dba,
+  // emissiveIntensity: 0.3,
+  roughness: 0.1,
+  metalness: 0.2,
+  flatShading: SmoothShading
+})
+// const placeMaterial = new MeshStandardMaterial({
+//   color: 0x3e50af,
+//   // emissive: 0x451dba,
+//   // emissiveIntensity: 0.3,
+//   roughness: 0.1,
+//   metalness: 0.2,
+//   flatShading: SmoothShading,
+//   transparent: true,
+//   opacity: 0.0
+// })
 
-let meshes
-loader.load('models/grid_x_o.glb', function (gltf) {
-  // debugger
-  // let parameters = {
-  // map: imgTexture,
-  // bumpMap: imgTexture,
-  // bumpScale: 1,
-  // color: 0x111111,
-  // specular: 0x222222,
-  // reflectivity: 0.9,
-  // shininess: 800,
-  // envMap: alphaIndex % 2 === 0 ? null : reflectionCube
-  // }
-  // const gridMaterial = new THREE.MeshToonMaterial(parameters);
+// let meshes
+// loader.load('models/grid_x_o.glb', function (gltf) {
+//   meshes = gltf.scene.children
+//
+//   const gridGeometry = meshes.find(({ name }) => name === 'grid').geometry
+//   scene.add(new Mesh(gridGeometry, gridMaterial))
+//   // grid.children.forEach(({ geometry }) => {
+//   //   const partGrid = new Mesh(geometry, gridMaterial)
+//   //   scene.add(partGrid)
+//   // })
+//   const XGeometry = meshes.find(({ name }) => name === 'x').geometry
+//   const OGeometry = meshes.find(({ name }) => name === 'o').geometry
+//   const plGeometry = meshes.find(({ name }) => name === 'placeholder').geometry
+//
+//   for (let i = -1; i < 2; i++) {
+//     for (let j = -1; j < 2; j++) {
+//       const placeholder = new Mesh(plGeometry, placeMaterial)
+//       placeholder.x = i + 1
+//       placeholder.y = j + 1
+//       placeholder.position.x += 6 * i
+//       placeholder.position.z += 6 * j
+//       places.push(placeholder)
+//
+//       const XFigure = new Mesh(XGeometry, XMaterial)
+//       XFigure.name = `${i + 1}${j + 1}`
+//       XFigure.rotation.y = Math.PI / 4
+//       XFigure.position.x += 6 * i
+//       XFigure.position.z += 6 * j
+//       xs.push(XFigure)
+//       scene.add(XFigure)
+//
+//       const OFigure = new Mesh(OGeometry, OMaterial)
+//       OFigure.name = `${i + 1}${j + 1}`
+//       OFigure.rotation.y = Math.PI / 4
+//       OFigure.position.x += 6 * i
+//       OFigure.position.z += 6 * j
+//
+//       os.push(OFigure)
+//       scene.add(OFigure)
+//     }
+//   }
+//   places.forEach(pl => scene.add(pl))
+// }, undefined, function (error) {
+//   console.error(error)
+// })
 
-  // const folderMaterial = gui.addFolder('Material')
-  // folderMaterial.add(parameters, 'bumpScale', -1, 3).listen();
-  // folderMaterial.add(parameters, 'color').listen();
-  // folderMaterial.add(parameters, 'specular').listen();
-  // folderMaterial.add(parameters, 'reflectivity', 0, 1).listen();
-  // folderMaterial.add(parameters, 'shininess', 0, 1000).listen();
+loader.load('models/grid.glb', function (model) {
+  const gridGeometry = model.scene.children[0].geometry
+  scene.add(new Mesh(gridGeometry, gridMaterial))
+}, undefined, function (error) {
+  console.error(error)
+})
 
-  const gridMaterial = new MeshStandardMaterial({
-    color: 0x3e50af,
-    // emissive: 0x451dba,
-    // emissiveIntensity: 0.3,
-    roughness: 0.1,
-    metalness: 0.2,
-    flatShading: SmoothShading
+loader.load('models/x.glb', function (model) {
+  XGeometry = model.scene.children[0].geometry
+  const XMaterial = new MeshStandardMaterial({
+    ...xMaterialConf,
+    transparent: true,
+    opacity: 0.1
   })
+  placeX = new Mesh(XGeometry, XMaterial)
+  placeX.rotation.y = Math.PI / 4
+  placeX.position.x = -100
+  placeX.position.z = -100
+  scene.add(placeX)
+}, undefined, function (error) {
+  console.error(error)
+})
 
-  meshes = gltf.scene.children
+loader.load('models/o.glb', function (model) {
+  OGeometry = model.scene.children[0].geometry
+  const OMaterial = new MeshStandardMaterial(new MeshStandardMaterial({
+    ...oMaterialConf,
+    transparent: true,
+    opacity: 0.1
+  }))
 
-  const grid = meshes.find(({ name }) => name === 'grid')
-  grid.children.forEach(({ geometry }) => {
-    const partGrid = new Mesh(geometry, gridMaterial)
-    scene.add(partGrid)
-  })
-
-  for (let i = -1; i < 2; i++) {
-    for (let j = -1; j < 2; j++) {
-      const placeMaterial = new MeshStandardMaterial({
-        color: 0x3e50af,
-        // emissive: 0x451dba,
-        // emissiveIntensity: 0.3,
-        roughness: 0.1,
-        metalness: 0.2,
-        flatShading: SmoothShading,
-        transparent: true,
-        opacity: 0.0
-      })
-      const placeholder = new Mesh(meshes[1].geometry, placeMaterial)
-      placeholder.x = i + 1
-      placeholder.y = j + 1
-      placeholder.position.x += 6 * i
-      placeholder.position.z += 6 * j
-      // clone.visible = false
-      places.push(placeholder)
-    }
-  }
-  places.forEach(pl => scene.add(pl))
+  placeO = new Mesh(OGeometry, OMaterial)
+  placeO.position.x = -100
+  placeO.position.z = -100
+  scene.add(placeO)
 }, undefined, function (error) {
   console.error(error)
 })

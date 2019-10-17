@@ -6,13 +6,19 @@ module.exports = class XOXGame {
   }
 
   playerMove (player, x, y) {
+    if (player !== XOXGame.first && player !== XOXGame.second) {
+      return {
+        isSuccess: false,
+        code: 'wrongPlayer'
+      }
+    }
     if (this.lastPlayer === player) {
       return {
         isSuccess: false,
         code: 'twoMovesInRow'
       }
     }
-    if (this.board[x][y] !== ' ') {
+    if (this.board[x][y] !== '') {
       return {
         isSuccess: false,
         code: 'cellAlreadySet'
@@ -52,7 +58,7 @@ module.exports = class XOXGame {
 
       for (let x = 0; x < this.board.length; x++) {
         for (let y = 0; y < this.board.length; y++) {
-          if (this.board[x][y] === ' ') {
+          if (this.board[x][y] === '') {
             return { status: 'continue' }
           }
         }
@@ -65,9 +71,12 @@ module.exports = class XOXGame {
 
   static createBoard () {
     return [
-      [' ', ' ', ' '],
-      [' ', ' ', ' '],
-      [' ', ' ', ' ']
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', '']
     ]
   }
+
+  static first = 'x'
+  static second = 'o'
 }
