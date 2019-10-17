@@ -11,4 +11,4 @@ Client
  - three.js
  
  Demo (heroku):  
- https://boiling-everglades-65994.herokuapp.com/ 
+ https://xox-xox.herokuapp.com/
