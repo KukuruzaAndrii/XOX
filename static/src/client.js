@@ -30,6 +30,7 @@ const animate = () => {
       if (p && board[cellX][cellY] === '') {
         p.position.x = 6 * (cellX - 1)
         p.position.z = 6 * (cellY - 1)
+        // createEdge(p)
       }
       if (isClick) {
         move(cellX, cellY)
@@ -41,6 +42,7 @@ const animate = () => {
 }
 animate()
 
+// eslint-disable-next-line no-undef
 const sock = io()
 let canMove = false
 sock.on('message', text => setMessage('message', text))
@@ -85,5 +87,5 @@ const setMessage = (id, message) => {
   document.querySelector(`#${id}`).innerHTML = message
 }
 
-const logDebug = log => setMessage('debug', log)
+// const logDebug = log => setMessage('debug', log)
 const convertGlobalToCell = x => Math.min(Math.floor(Math.abs(x / 3)), 1) * Math.sign(x) + 1

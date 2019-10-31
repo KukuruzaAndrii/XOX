@@ -2,6 +2,7 @@ const setMessage = message => {
   document.querySelector('#message').innerHTML = message
 }
 
+// eslint-disable-next-line no-undef
 const sock = io()
 let canMove = true
 sock.on('message', setMessage)

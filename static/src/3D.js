@@ -10,7 +10,11 @@ import {
   SmoothShading,
   Mesh,
   PlaneGeometry,
-  AxesHelper
+  // AxesHelper,
+  EdgesGeometry,
+  LineSegments,
+  LineBasicMaterial
+  // AdditiveBlending
 } from '../build/three.module.js'
 // } from 'three'
 import { GLTFLoader } from '../three/jsm/loaders/GLTFLoader.js'
@@ -188,12 +192,14 @@ export const addX = (x, y) => {
   XFigure.position.x = 6 * (x - 1)
   XFigure.position.z = 6 * (y - 1)
   scene.add(XFigure)
+  createEdge(XFigure)
 }
 export const addO = (x, y) => {
   const OFigure = new Mesh(OGeometry, OMaterial)
   OFigure.position.x = 6 * (x - 1)
   OFigure.position.z = 6 * (y - 1)
   scene.add(OFigure)
+  createEdge(OFigure)
 }
 const gridMaterial = new MeshStandardMaterial({
   color: 0x3e50af,
@@ -275,6 +281,7 @@ loader.load('models/x.glb', function (model) {
     opacity: 0.1
   })
   placeX = new Mesh(XGeometry, XMaterial)
+
   placeX.rotation.y = Math.PI / 4
   placeX.position.x = -100
   placeX.position.z = -100
@@ -298,3 +305,16 @@ loader.load('models/o.glb', function (model) {
 }, undefined, function (error) {
   console.error(error)
 })
+
+export const createEdge = mesh => {
+  var edges = new EdgesGeometry(mesh.geometry)
+  edges.scale(1.05, 1.05, 1.05)
+  var line = new LineSegments(edges, new LineBasicMaterial({
+    color: 0x0000ff
+  }))
+  // line.material.depthTest = false
+  line.position.x = 6
+  line.position.z = 0
+  line.rotation.y = Math.PI / 4
+  scene.add(line)
+}

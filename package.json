@@ -1,5 +1,5 @@
 {
-  "name": "XOX-server",
+  "name": "xox",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -8,16 +8,22 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
+  "repository": {
+    "url": "https://github.com/KukuruzaAndrey/XOX"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^2.3.0",
-    "three": "^0.109.0"
+    "three": "^0.110.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "babel-eslint": "^10.0.3",
     "heroku": "^7.33.3",
+    "husky": "^3.0.9",
     "jest": "^24.9.0",
     "nodemon": "^1.19.4",
     "readline-sync": "^1.4.10",
@@ -25,5 +31,19 @@
   },
   "engines": {
     "node": "12.x"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test",
+      "pre-push": "npm test"
+    }
+  },
+  "standard": {
+    "parser": "babel-eslint"
   }
 }

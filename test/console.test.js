@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const { stringBoard } = require('../bin/console')
 const XOXGame = require('../src/xox')
 

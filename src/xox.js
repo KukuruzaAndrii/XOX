@@ -1,8 +1,11 @@
 module.exports = class XOXGame {
+  static first = 'x'
+  static second = 'o'
+  #lastPlayer = null
+  #lastStatus = null
+
   constructor () {
-    this.lastPlayer = null
     this.board = XOXGame.createBoard()
-    this.lastStatus = null
   }
 
   playerMove (player, x, y) {
@@ -39,19 +42,20 @@ module.exports = class XOXGame {
 
   status () {
     const checkStatus = () => {
-      const players = ['x', 'o']
-      for (let i = 0; i < players.length; i++) {
-        const pl = players[i]
-        for (let x = 0; x < this.board.length; x++) {
-          if (
-            (this.board[x][0] === pl && this.board[x][1] === pl && this.board[x][2] === pl) ||
-            (this.board[0][x] === pl && this.board[1][x] === pl && this.board[2][x] === pl) ||
-            (this.board[0][0] === pl && this.board[1][1] === pl && this.board[2][2] === pl) ||
-            (this.board[2][0] === pl && this.board[1][1] === pl && this.board[0][2] === pl)) {
-            return {
-              status: 'victory',
-              winner: pl
-            }
+      const testWin = player => combination => combination.every(([x, y]) => this.board[x][y] === player)
+      const combinations = [
+        [[0, 0], [1, 1], [2, 2]],
+        [[2, 0], [1, 1], [0, 2]],
+        ...[0, 1, 2].map(x => [[x, 0], [x, 1], [x, 2]]),
+        ...[0, 1, 2].map(x => [[0, x], [1, x], [2, x]])
+      ]
+      for (const player of [XOXGame.first, XOXGame.second]) {
+        const winCombination = combinations.find(testWin(player))
+        if (winCombination) {
+          return {
+            status: 'victory',
+            combination: winCombination,
+            winner: player
           }
         }
       }
@@ -76,7 +80,4 @@ module.exports = class XOXGame {
       ['', '', '']
     ]
   }
-
-  static first = 'x'
-  static second = 'o'
 }
