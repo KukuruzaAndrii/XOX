@@ -9,17 +9,20 @@ import {
   MeshStandardMaterial,
   SmoothShading,
   Mesh,
-  PlaneGeometry,
+  PlaneGeometry
   // AxesHelper,
-  EdgesGeometry,
-  LineSegments,
-  LineBasicMaterial
+  // EdgesGeometry,
+  // LineSegments,
+  // LineBasicMaterial,
   // AdditiveBlending
 } from '../build/three.module.js'
 // } from 'three'
 import { GLTFLoader } from '../three/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from '../three/jsm/loaders/DRACOLoader.js'
 import Stats from '../three/jsm/libs/stats.module.js'
+
+import TimelineLite from '../gsap/TimelineLite.js'
+
 // import { Scene, PerspectiveCamera } from 'three'
 
 export const scene = new Scene()
@@ -30,6 +33,12 @@ export const mouse = new Vector2()
 export let placeX
 export let placeO
 export const stats = new Stats()
+
+const board3d = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null]
+]
 
 const loader = new GLTFLoader()
 const dracoLoader = new DRACOLoader()
@@ -192,14 +201,18 @@ export const addX = (x, y) => {
   XFigure.position.x = 6 * (x - 1)
   XFigure.position.z = 6 * (y - 1)
   scene.add(XFigure)
-  createEdge(XFigure)
+  board3d[x][y] = XFigure
+  // animateMesh(XFigure)
+  // createEdge(XFigure)
 }
 export const addO = (x, y) => {
   const OFigure = new Mesh(OGeometry, OMaterial)
   OFigure.position.x = 6 * (x - 1)
   OFigure.position.z = 6 * (y - 1)
   scene.add(OFigure)
-  createEdge(OFigure)
+  board3d[x][y] = OFigure
+  // animateMesh(OFigure)
+  // createEdge(OFigure)
 }
 const gridMaterial = new MeshStandardMaterial({
   color: 0x3e50af,
@@ -305,7 +318,7 @@ loader.load('models/o.glb', function (model) {
 }, undefined, function (error) {
   console.error(error)
 })
-
+/*
 export const createEdge = mesh => {
   var edges = new EdgesGeometry(mesh.geometry)
   edges.scale(1.05, 1.05, 1.05)
@@ -318,3 +331,24 @@ export const createEdge = mesh => {
   line.rotation.y = Math.PI / 4
   scene.add(line)
 }
+*/
+
+export const animateWin = combination => {
+  const tl = new TimelineLite()
+  combination.forEach(([x, y], index) => {
+    const fig = board3d[x][y]
+    animateMesh(fig, index, tl)
+  })
+}
+
+export const animateMesh = (mesh, index, tl) => {
+  // eslint-disable-next-line no-undef
+  tl.to(mesh.position, 0.6, { y: 3, ease: Power3.easeOut }, index === 0 ? '' : '-=0.2')
+}
+
+// export const test = () => {
+//   addX(0, 0)
+//   addX(1, 1)
+//   addX(2, 2)
+//   animateWin([[0, 0], [1, 1], [2, 2]])
+// }

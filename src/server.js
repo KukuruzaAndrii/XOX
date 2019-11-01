@@ -12,6 +12,7 @@ const clientPath = path.resolve(__dirname, '..', 'static')
 app.use(express.static(clientPath))
 app.use('/build', express.static(path.resolve(__dirname, '..', 'node_modules/three/build')))
 app.use('/three', express.static(path.resolve(__dirname, '..', 'node_modules/three/examples')))
+app.use('/gsap', express.static(path.resolve(__dirname, '..', 'node_modules/gsap')))
 
 const server = http.createServer(app)
 
@@ -56,18 +57,10 @@ const startGame = (p1socket, p2socket) => {
       if (move.isSuccess) {
         console.log(move, x, y)
         p2socket.emit('move', `${x}${y}`)
-        const { status } = game.status()
-        switch (status) {
-          case 'draw':
-            console.log('Draw!')
-            p1socket.emit('end', 'draw')
-            p2socket.emit('end', 'draw')
-            break
-          case 'victory':
-            console.log('we have a winner!')
-            p1socket.emit('end', 'win')
-            p2socket.emit('end', 'lose')
-        }
+        const status = game.status()
+        console.log(status.status)
+        p1socket.emit('status', status)
+        p2socket.emit('status', status)
       } else {
         console.error(playerOrder, move)
       }

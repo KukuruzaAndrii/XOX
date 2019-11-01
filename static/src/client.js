@@ -1,4 +1,17 @@
-import { addX, addO, stats, rayCaster, mouse, camera, placeX, placeO, renderer, scene, init } from './3D.js'
+import {
+  addX,
+  addO,
+  stats,
+  rayCaster,
+  mouse,
+  camera,
+  placeX,
+  placeO,
+  renderer,
+  scene,
+  init,
+  animateWin
+} from './3D.js'
 
 const plane = init()
 const board = [
@@ -30,7 +43,6 @@ const animate = () => {
       if (p && board[cellX][cellY] === '') {
         p.position.x = 6 * (cellX - 1)
         p.position.z = 6 * (cellY - 1)
-        // createEdge(p)
       }
       if (isClick) {
         move(cellX, cellY)
@@ -64,14 +76,24 @@ sock.on('move', cmd => {
   canMove = true
   setMessage('message', 'Your turn!')
 })
-sock.on('end', status => {
-  canMove = false
-  if (status === 'draw') {
-    setMessage('message', 'You lose! Same as your opponent')
-  } else if (status === 'win') {
-    setMessage('message', 'You win! Congratulation!')
-  } else if (status === 'lose') {
-    setMessage('message', 'You lose! Maybe next time...')
+
+sock.on('status', ({ status, combination, winner }) => {
+  switch (status) {
+    case 'continue':
+      return
+    case 'draw':
+      setMessage('message', 'You lose! Same as your opponent')
+      break
+    case 'victory':
+      if (winner === playerOrder) {
+        setMessage('message', 'You win! Congratulation!')
+        canMove = false
+        animateWin(combination)
+      } else {
+        setMessage('message', 'You lose! Maybe next time...')
+        canMove = false
+        animateWin(combination)
+      }
   }
 })
 
