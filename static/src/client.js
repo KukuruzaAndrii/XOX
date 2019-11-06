@@ -1,3 +1,4 @@
+/* global requestAnimationFrame */
 import {
   addX,
   addO,
@@ -12,6 +13,7 @@ import {
   init,
   animateWin
 } from './3D.js'
+import { SmartWS } from './smartWS.js'
 
 const plane = init()
 const board = [
@@ -21,19 +23,19 @@ const board = [
 ]
 const first = 'x'
 const second = 'o'
-let playerOrder
+let playerOrder = null
 const drowMy = order => order === first ? addX : addO
 const drowOpp = order => order === second ? addX : addO
 const place = order => order === first ? placeX : placeO
 let isClick = false
+let gameOver = false
 window.addEventListener('mouseup', () => { isClick = false }, false)
 window.addEventListener('mousedown', () => { isClick = true }, false)
 const animate = () => {
-  // eslint-disable-next-line no-undef
   requestAnimationFrame(animate)
   stats.update()
   rayCaster.setFromCamera(mouse, camera)
-  if (playerOrder) {
+  if (playerOrder && !gameOver) {
     const intersects = rayCaster.intersectObjects([plane])
     if (intersects.length === 1) {
       const [{ point }] = intersects
@@ -44,7 +46,7 @@ const animate = () => {
         p.position.x = 6 * (cellX - 1)
         p.position.z = 6 * (cellY - 1)
       }
-      if (isClick) {
+      if (isClick && canMove && board[cellX][cellY] === '') {
         move(cellX, cellY)
         isClick = false
       }
@@ -55,8 +57,11 @@ const animate = () => {
 animate()
 
 // eslint-disable-next-line no-undef
-const sock = io()
+const sock = new SmartWS(`ws://${window.location.host}`)
 let canMove = false
+// sock.addEventListener('open', () => {
+//   console.log('open')
+// })
 sock.on('message', text => setMessage('message', text))
 sock.on('countOnline', number => setMessage('countOnline', number))
 sock.on('start', order => {
@@ -87,18 +92,16 @@ sock.on('status', ({ status, combination, winner }) => {
     case 'victory':
       if (winner === playerOrder) {
         setMessage('message', 'You win! Congratulation!')
-        canMove = false
-        animateWin(combination)
       } else {
         setMessage('message', 'You lose! Maybe next time...')
-        canMove = false
-        animateWin(combination)
       }
+      gameOver = true
+      animateWin(combination)
   }
 })
 
 const move = (x, y) => {
-  if (!canMove || board[x][y] !== '') return
+  // if (!canMove || board[x][y] !== '') return
   board[x][y] = playerOrder
   sock.emit('move', `${x}${y}`)
   drowMy(playerOrder)(x, y)

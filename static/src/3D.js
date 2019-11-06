@@ -342,8 +342,10 @@ export const animateWin = combination => {
 }
 
 export const animateMesh = (mesh, index, tl) => {
+  // mesh.material.color.r
   // eslint-disable-next-line no-undef
-  tl.to(mesh.position, 0.6, { y: 3, ease: Power3.easeOut }, index === 0 ? '' : '-=0.2')
+  tl.to(mesh.position, 0.6, { y: 3, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
+  // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
 }
 
 // export const test = () => {

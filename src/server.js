@@ -1,9 +1,9 @@
 const http = require('http')
 const express = require('express')
-const socketio = require('socket.io')
+// const socketio = require('socket.io')
 const path = require('path')
 const XOXGame = require('./xox')
-
+const SmartWSS = require('./smartSock')
 const port = process.env.PORT || 8080
 
 const app = express()
@@ -16,24 +16,26 @@ app.use('/gsap', express.static(path.resolve(__dirname, '..', 'node_modules/gsap
 
 const server = http.createServer(app)
 
-const io = socketio(server)
+// const io = socketio(server)
+const wss = new SmartWSS({ server })
 
 let waitingPlayer = null
 let countOnline = 0
-io.on('connection', sock => {
+wss.on('connection', ws => {
   console.log('player connected')
   countOnline += 1
-  io.emit('countOnline', countOnline)
-  sock.on('disconnect', () => {
+  wss.emit('countOnline', countOnline)
+  ws.on('close', () => {
+    console.log('close')
     countOnline -= 1
-    io.emit('countOnline', countOnline)
+    wss.emit('countOnline', countOnline)
   })
 
   if (waitingPlayer) {
-    startGame(sock, waitingPlayer)
+    startGame(ws, waitingPlayer)
     waitingPlayer = null
   } else {
-    waitingPlayer = sock
+    waitingPlayer = ws
     waitingPlayer.emit('message', 'Waiting for an opponent')
   }
 })
