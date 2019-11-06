@@ -29,6 +29,7 @@ const drowOpp = order => order === second ? addX : addO
 const place = order => order === first ? placeX : placeO
 let isClick = false
 let gameOver = false
+let canMove = false
 window.addEventListener('mouseup', () => { isClick = false }, false)
 window.addEventListener('mousedown', () => { isClick = true }, false)
 const animate = () => {
@@ -57,8 +58,7 @@ const animate = () => {
 animate()
 
 // eslint-disable-next-line no-undef
-const sock = new SmartWS(`ws://${window.location.host}`)
-let canMove = false
+const sock = new SmartWS(location.origin.replace(/^http/, 'ws'))
 // sock.addEventListener('open', () => {
 //   console.log('open')
 // })

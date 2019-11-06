@@ -1,13 +1,12 @@
 const http = require('http')
 const express = require('express')
-// const socketio = require('socket.io')
 const path = require('path')
+
 const XOXGame = require('./xox')
 const SmartWSS = require('./smartSock')
+
 const port = process.env.PORT || 8080
-
 const app = express()
-
 const clientPath = path.resolve(__dirname, '..', 'static')
 app.use(express.static(clientPath))
 app.use('/build', express.static(path.resolve(__dirname, '..', 'node_modules/three/build')))
@@ -16,7 +15,6 @@ app.use('/gsap', express.static(path.resolve(__dirname, '..', 'node_modules/gsap
 
 const server = http.createServer(app)
 
-// const io = socketio(server)
 const wss = new SmartWSS({ server })
 
 let waitingPlayer = null
