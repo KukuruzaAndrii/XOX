@@ -110,13 +110,20 @@ const setCamera = () => {
 }
 
 const setControls = domElement => {
-  domElement.addEventListener('mousemove', e => {
-    const { clientX, clientY } = e
+  const moveEvent = (clientX, clientY) => {
     const normalizeX = (2 * clientX / window.innerWidth - 1)
     const normalizeY = -(2 * clientY / window.innerHeight - 1)
 
     updateGlobalMouse(normalizeX, normalizeY)
     moveCameraWithMouse(camera, mouse)
+  }
+  domElement.addEventListener('mousemove', e => {
+    const { clientX, clientY } = e
+    moveEvent(clientX, clientY)
+  })
+  domElement.addEventListener('touchmove', e => {
+    const { clientX, clientY } = e.targetTouches[0]
+    moveEvent(clientX, clientY)
   })
 }
 

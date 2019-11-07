@@ -24,14 +24,15 @@ const board = [
 const first = 'x'
 const second = 'o'
 let playerOrder = null
-const drowMy = order => order === first ? addX : addO
-const drowOpp = order => order === second ? addX : addO
+const drawMy = order => order === first ? addX : addO
+const drawOpp = order => order === second ? addX : addO
 const place = order => order === first ? placeX : placeO
 let isClick = false
 let gameOver = false
 let canMove = false
 window.addEventListener('mouseup', () => { isClick = false }, false)
-window.addEventListener('mousedown', () => { isClick = true }, false)
+window.addEventListener('touchend', () => { isClick = false }, false)
+window.addEventListener('click', () => { isClick = true }, false)
 const animate = () => {
   requestAnimationFrame(animate)
   stats.update()
@@ -77,7 +78,7 @@ sock.on('start', order => {
 sock.on('move', cmd => {
   const [x, y] = cmd.split('')
   board[x][y] = playerOrder === first ? second : first
-  drowOpp(playerOrder)(x, y)
+  drawOpp(playerOrder)(x, y)
   canMove = true
   setMessage('message', 'Your turn!')
 })
@@ -104,7 +105,7 @@ const move = (x, y) => {
   // if (!canMove || board[x][y] !== '') return
   board[x][y] = playerOrder
   sock.emit('move', `${x}${y}`)
-  drowMy(playerOrder)(x, y)
+  drawMy(playerOrder)(x, y)
   canMove = false
   setMessage('message', 'Opponent turn!')
 }
