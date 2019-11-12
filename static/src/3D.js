@@ -21,7 +21,7 @@ import { GLTFLoader } from '../three/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from '../three/jsm/loaders/DRACOLoader.js'
 import Stats from '../three/jsm/libs/stats.module.js'
 
-import TimelineLite from '../gsap/TimelineLite.js'
+import gsap from '../gsap/index.js'
 
 // import { Scene, PerspectiveCamera } from 'three'
 
@@ -341,7 +341,7 @@ export const createEdge = mesh => {
 */
 
 export const animateWin = combination => {
-  const tl = new TimelineLite()
+  const tl = gsap.timeline()
   combination.forEach(([x, y], index) => {
     const fig = board3d[x][y]
     animateMesh(fig, index, tl)
@@ -350,7 +350,7 @@ export const animateWin = combination => {
 
 export const animateMesh = (mesh, index, tl) => {
   // eslint-disable-next-line no-undef
-  tl.to(mesh.position, 0.6, { y: 3, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
+  tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
   // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
 }
 
