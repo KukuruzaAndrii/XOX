@@ -16,25 +16,39 @@ app.use('/gsap', express.static(path.resolve(__dirname, '..', 'node_modules/gsap
 const server = http.createServer(app)
 
 const wss = new SmartWSS({ server })
-
-let waitingPlayer = null
+// const rooms = []
+let waitingForOpp = false
 let countOnline = 0
+let lastRoomID = 0
 wss.on('connection', ws => {
   console.log('player connected')
   countOnline += 1
   wss.emit('countOnline', countOnline)
+  // console.log(wss.rooms)
+  // wss.emit('rooms', wss.rooms.map(room => room.sockets.length))
+  // ws.on('createRoom', () => {
+  //   rooms.push(wss.to(String(lastRoomID)).join(ws))
+  //   lastRoomID += 1
+  // })
+  // ws.on('joinRoom', roomID => {
+  //   wss.to(roomID).join(ws)
+  //   startGame(roomID)
+  // })
+
   ws.on('close', () => {
     console.log('close')
     countOnline -= 1
     wss.emit('countOnline', countOnline)
   })
 
-  if (waitingPlayer) {
-    startGame(ws, waitingPlayer)
-    waitingPlayer = null
+  if (waitingForOpp) {
+    wss.to(String(lastRoomID)).join(ws)
+    startGame(String(lastRoomID))
+    lastRoomID += 1
   } else {
-    waitingPlayer = ws
-    waitingPlayer.emit('message', 'Waiting for an opponent')
+    wss.to(String(lastRoomID)).join(ws)
+    ws.emit('message', 'Waiting for an opponent')
+    waitingForOpp = true
   }
 })
 server.on('error', err => {
@@ -45,7 +59,7 @@ server.listen(port, () => {
   console.log(`**XOX started on ${port}**`)
 })
 
-const startGame = (p1socket, p2socket) => {
+const startGame = roomID => {
   console.log('game started')
   const game = new XOXGame()
   const registerHandlers = (p1socket, p2socket, playerOrder, game) => {
@@ -66,7 +80,18 @@ const startGame = (p1socket, p2socket) => {
       }
     })
   }
-
-  registerHandlers(p1socket, p2socket, XOXGame.first, game)
-  registerHandlers(p2socket, p1socket, XOXGame.second, game)
+  const room = wss.to(roomID)
+  registerHandlers(room.sockets[0], room.sockets[1], XOXGame.first, game)
+  registerHandlers(room.sockets[1], room.sockets[0], XOXGame.second, game)
 }
+
+/*
+class Room {
+  constructor (socketRoom) {
+    this.socketRoom = socketRoom
+  }
+
+  start () {
+    startGame(this.socketRoom)
+  }
+} */

@@ -22,7 +22,7 @@ import { DRACOLoader } from '../three/jsm/loaders/DRACOLoader.js'
 import Stats from '../three/jsm/libs/stats.module.js'
 
 import gsap from '../gsap/index.js'
-
+import View from './view.js'
 // import { Scene, PerspectiveCamera } from 'three'
 
 export const scene = new Scene()
@@ -33,7 +33,7 @@ export const mouse = new Vector2()
 export let placeX
 export let placeO
 export const stats = new Stats()
-
+const view = new View({ x: 0, y: 0 })
 const board3d = [
   [null, null, null],
   [null, null, null],
@@ -51,11 +51,11 @@ const updateGlobalMouse = (x, y) => {
 }
 
 const moveCameraWithMouse = (camera, mouse) => {
-  const { x, y } = mouse
-  camera.position.x = 1.5 * x
-  camera.position.z = -1.5 * y
-  camera.rotation.y = Math.PI * x / 20
-  camera.rotation.x = -Math.PI / 2 - Math.PI * y / 20
+  const { position, rotation } = view.getCameraPosition(mouse)
+  camera.position.x = position.x
+  camera.position.z = position.z
+  camera.rotation.x = rotation.x
+  camera.rotation.y = rotation.y
 }
 const setLight = () => {
   // const light = new THREE.DirectionalLight(0xdddddd, 0.8);
@@ -135,7 +135,7 @@ const onWindowResize = () => {
 
 export const init = () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
-
+  showStartScreen()
   setLight()
   setCamera()
   // renderer.shadowMap.enabled = true;
@@ -349,7 +349,6 @@ export const animateWin = combination => {
 }
 
 export const animateMesh = (mesh, index, tl) => {
-  // eslint-disable-next-line no-undef
   tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
   // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
 }
@@ -360,3 +359,12 @@ export const animateMesh = (mesh, index, tl) => {
 //   addX(2, 2)
 //   animateWin([[0, 0], [1, 1], [2, 2]])
 // }
+
+const showStartScreen = () => {
+  camera.position.x = 0
+  camera.position.z = -5
+  view.setCenter({ x: 0, y: -5 })
+  camera.rotation.x = -Math.PI / 2
+  const tl = gsap.timeline()
+  tl.to(camera.position, { z: 10, duration: 5, ease: 'power3.out' })
+}

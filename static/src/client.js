@@ -36,6 +36,7 @@ window.addEventListener('click', () => { isClick = true }, false)
 const animate = () => {
   requestAnimationFrame(animate)
   stats.update()
+  logDebug(`${mouse.x} ${mouse.y}`)
   rayCaster.setFromCamera(mouse, camera)
   if (playerOrder && !gameOver) {
     const intersects = rayCaster.intersectObjects([plane])
@@ -56,13 +57,17 @@ const animate = () => {
   }
   renderer.render(scene, camera)
 }
-animate()
 
 // eslint-disable-next-line no-undef
 const sock = new SmartWS(location.origin.replace(/^http/, 'ws'))
 // sock.addEventListener('open', () => {
 //   console.log('open')
 // })
+// sock.on('rooms', rooms => renderRooms(rooms))
+// document.querySelector('#createRoom').addEventListener('click', e => {
+//   sock.emit('createRoom')
+// })
+
 sock.on('message', text => setMessage('message', text))
 sock.on('countOnline', number => setMessage('countOnline', number))
 sock.on('start', order => {
@@ -112,6 +117,28 @@ const move = (x, y) => {
 const setMessage = (id, message) => {
   document.querySelector(`#${id}`).innerHTML = message
 }
+const logDebug = log => setMessage('debug', log)
 
-// const logDebug = log => setMessage('debug', log)
 const convertGlobalToCell = x => Math.min(Math.floor(Math.abs(x / 3)), 1) * Math.sign(x) + 1
+
+// const renderRooms = (rooms) => {
+//   rooms.forEach(room => {
+//     const div = document.createElement('div')
+//     const p = document.createElement('p')
+//     // 👨‍💻
+//     const text = document.createTextNode(`[${'👩‍💻'.repeat(room)}]`)
+//     p.appendChild(text)
+//     div.appendChild(p)
+//     if (room === 1) {
+//       const but = document.createElement('button')
+//       const text = document.createTextNode('join')
+//       but.appendChild(text)
+//       but.addEventListener('click', e => {
+//         sock.emit('joinRoom', '0')
+//       })
+//       div.appendChild(but)
+//     }
+//     document.querySelector('#rooms').appendChild(div)
+//   })
+// }
+animate()
