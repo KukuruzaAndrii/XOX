@@ -16,15 +16,15 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "gsap": "^3.0.4",
-    "three": "^0.111.0",
+    "gsap": "^3.0.5",
+    "three": "^0.112.1",
     "ws": "^7.2.1"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
     "babel-eslint": "^10.0.3",
     "heroku": "^7.35.1",
-    "husky": "^3.1.0",
+    "husky": "^4.0.10",
     "jest": "^24.9.0",
     "nodemon": "^2.0.2",
     "readline-sync": "^1.4.10",

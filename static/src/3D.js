@@ -9,8 +9,8 @@ import {
   MeshStandardMaterial,
   SmoothShading,
   Mesh,
-  PlaneGeometry
-  // AxesHelper,
+  PlaneGeometry,
+  AxesHelper
   // EdgesGeometry,
   // LineSegments,
   // LineBasicMaterial,
@@ -32,8 +32,9 @@ export const rayCaster = new Raycaster()
 export const mouse = new Vector2()
 export let placeX
 export let placeO
+export let startBtn
 export const stats = new Stats()
-const view = new View({ x: 0, y: 0 })
+export const view = new View({ x: 0, y: 0 }, camera)
 const board3d = [
   [null, null, null],
   [null, null, null],
@@ -50,13 +51,13 @@ const updateGlobalMouse = (x, y) => {
   mouse.y = y
 }
 
-const moveCameraWithMouse = (camera, mouse) => {
-  const { position, rotation } = view.getCameraPosition(mouse)
-  camera.position.x = position.x
-  camera.position.z = position.z
-  camera.rotation.x = rotation.x
-  camera.rotation.y = rotation.y
-}
+// export const moveCameraWithMouse = (camera, mouse) => {
+//   const { position, rotation } = view.getCameraPosition(mouse)
+//   camera.position.x = position.x
+//   camera.position.z = position.z
+//   camera.rotation.x = rotation.x
+//   camera.rotation.y = rotation.y
+// }
 const setLight = () => {
   // const light = new THREE.DirectionalLight(0xdddddd, 0.8);
   //
@@ -104,18 +105,13 @@ const setLight = () => {
   // camera.position.z = 15;
 }
 
-const setCamera = () => {
-  camera.position.y = 17
-  camera.rotation.x = -Math.PI / 2
-}
-
 const setControls = domElement => {
   const moveEvent = (clientX, clientY) => {
     const normalizeX = (2 * clientX / window.innerWidth - 1)
     const normalizeY = -(2 * clientY / window.innerHeight - 1)
 
     updateGlobalMouse(normalizeX, normalizeY)
-    moveCameraWithMouse(camera, mouse)
+    // moveCameraWithMouse(camera, mouse)
   }
   domElement.addEventListener('mousemove', e => {
     const { clientX, clientY } = e
@@ -135,14 +131,14 @@ const onWindowResize = () => {
 
 export const init = () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
-  showStartScreen()
+  // showStartScreen()
   setLight()
-  setCamera()
+  // setCamera()
   // renderer.shadowMap.enabled = true;
   // scene.background = new THREE.Color(0x8FBCD4)
 
-  // const axesHelper = new AxesHelper(10)
-  // scene.add(axesHelper)
+  const axesHelper = new AxesHelper(10)
+  scene.add(axesHelper)
   const geometry = new PlaneGeometry(25, 25)
   const material = new MeshStandardMaterial({
     color: 0xaaaaaa,
@@ -286,14 +282,16 @@ const gridMaterial = new MeshStandardMaterial({
 //   console.error(error)
 // })
 
-loader.load('models/grid.glb', function (model) {
+loader.load('models/grid.glb', model => {
   const gridGeometry = model.scene.children[0].geometry
   scene.add(new Mesh(gridGeometry, gridMaterial))
-}, undefined, function (error) {
+}, xhr => {
+  console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+}, function (error) {
   console.error(error)
 })
 
-loader.load('models/x.glb', function (model) {
+loader.load('models/x.glb', model => {
   XGeometry = model.scene.children[0].geometry
   const XMaterial = new MeshStandardMaterial({
     ...xMaterialConf,
@@ -306,23 +304,28 @@ loader.load('models/x.glb', function (model) {
   placeX.position.x = -100
   placeX.position.z = -100
   scene.add(placeX)
-}, undefined, function (error) {
+}, xhr => {
+  console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+}, function (error) {
   console.error(error)
 })
 
-loader.load('models/o.glb', function (model) {
+loader.load('models/o.glb', model => {
   OGeometry = model.scene.children[0].geometry
-  const OMaterial = new MeshStandardMaterial(new MeshStandardMaterial({
+  const OMaterial = new MeshStandardMaterial({
     ...oMaterialConf,
     transparent: true,
     opacity: 0.1
-  }))
+  })
 
   placeO = new Mesh(OGeometry, OMaterial)
   placeO.position.x = -100
   placeO.position.z = -100
   scene.add(placeO)
-}, undefined, function (error) {
+  showStartScreen()
+}, xhr => {
+  console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+}, function (error) {
   console.error(error)
 })
 /*
@@ -361,10 +364,11 @@ export const animateMesh = (mesh, index, tl) => {
 // }
 
 const showStartScreen = () => {
-  camera.position.x = 0
-  camera.position.z = -5
-  view.setCenter({ x: 0, y: -5 })
-  camera.rotation.x = -Math.PI / 2
-  const tl = gsap.timeline()
-  tl.to(camera.position, { z: 10, duration: 5, ease: 'power3.out' })
+  // camera.rotation.x = -Math.PI / 2
+  startBtn = new Mesh(OGeometry, OMaterial)
+  startBtn.rotation.y = Math.PI / 4
+  startBtn.position.x = 0
+  startBtn.position.z = -30
+  startBtn.name = 'startBtn'
+  scene.add(startBtn)
 }

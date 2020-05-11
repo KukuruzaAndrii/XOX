@@ -16,7 +16,8 @@ app.use('/gsap', express.static(path.resolve(__dirname, '..', 'node_modules/gsap
 const server = http.createServer(app)
 
 const wss = new SmartWSS({ server })
-// const rooms = []
+const pool = []
+const rooms = []
 let waitingForOpp = false
 let countOnline = 0
 let lastRoomID = 0
@@ -40,9 +41,12 @@ wss.on('connection', ws => {
     countOnline -= 1
     wss.emit('countOnline', countOnline)
   })
+  ws.on('start', () => {
 
+  })
   if (waitingForOpp) {
     wss.to(String(lastRoomID)).join(ws)
+
     startGame(String(lastRoomID))
     lastRoomID += 1
   } else {
@@ -85,13 +89,27 @@ const startGame = roomID => {
   registerHandlers(room.sockets[1], room.sockets[0], XOXGame.second, game)
 }
 
-/*
-class Room {
-  constructor (socketRoom) {
+class Game {
+  ID
+  status
+  score
+  socketRoom
+  socket1
+  socket2
+
+  constructor (ID, socket1, socket2, socketRoom) {
+    this.ID = ID
+    this.socket1 = socket1
+    this.socket2 = socket2
     this.socketRoom = socketRoom
   }
 
   start () {
-    startGame(this.socketRoom)
+    // ... (socket1, socket2)
   }
-} */
+
+  restart () {
+
+  }
+
+}
