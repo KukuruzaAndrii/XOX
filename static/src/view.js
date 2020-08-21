@@ -24,14 +24,19 @@ export default class View {
     this.camera.position.y = 17
     this.camera.rotation.x = -Math.PI / 2
     this.setCamera({ x: 0, y: -30 })
+
+    /*        this.camera.position.y = 0
+    this.camera.rotation.x = -Math.PI / 2
+    this.camera.rotation.y = Math.PI / 2
+    this.setCamera({ x: 15, y: -30 }) */
   }
 
   update (mouse) {
     const { position, rotation } = setCameraPosition(this.center, mouse)
     this.camera.position.x = position.x
     this.camera.position.z = position.z
-    this.camera.rotation.x = rotation.x
-    this.camera.rotation.y = rotation.y
+    this.camera.rotation.x = rotation.x //
+    this.camera.rotation.y = rotation.y //
   }
 
   start () {
@@ -46,6 +51,7 @@ const setCameraPosition = (center, mousePosition) => {
       x: center.x + 1.5 * x,
       z: center.y - 1.5 * y
     },
+    //
     rotation: {
       x: -Math.PI / 2 - Math.PI * y / 20,
       y: Math.PI * x / 20

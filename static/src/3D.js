@@ -7,10 +7,19 @@ import {
   DirectionalLight,
   PointLight,
   MeshStandardMaterial,
+  // MeshPhongMaterial,
   SmoothShading,
   Mesh,
   PlaneGeometry,
-  AxesHelper
+  AxesHelper,
+  TextGeometry,
+  BufferGeometry,
+  FontLoader,
+  Object3D,
+  Vector3,
+  LineBasicMaterial,
+  Line
+  // Triangle
   // EdgesGeometry,
   // LineSegments,
   // LineBasicMaterial,
@@ -322,7 +331,6 @@ loader.load('models/o.glb', model => {
   placeO.position.x = -100
   placeO.position.z = -100
   scene.add(placeO)
-  showStartScreen()
 }, xhr => {
   console.log((xhr.loaded / xhr.total * 100) + '% loaded')
 }, function (error) {
@@ -344,6 +352,10 @@ export const createEdge = mesh => {
 */
 
 export const animateWin = combination => {
+  const animateMesh = (mesh, index, tl) => {
+    tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
+    // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
+  }
   const tl = gsap.timeline()
   combination.forEach(([x, y], index) => {
     const fig = board3d[x][y]
@@ -351,9 +363,34 @@ export const animateWin = combination => {
   })
 }
 
-export const animateMesh = (mesh, index, tl) => {
-  tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
-  // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
+export const restart = () => {
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (board3d[i][j] !== null) {
+        board3d[i][j].geometry.dispose()
+        board3d[i][j].material.dispose()
+        scene.remove(board3d[i][j])
+      }
+    }
+  }
+}
+
+export const animateStart = () => {
+  // return gsap.to(startBtn.rotation, { x: Math.PI + Math.PI / 2, duration: 5, ease: 'power.out', paused: true })
+  const tl = gsap.timeline()
+  tl.to(startBtn.rotation, { x: -2 * Math.PI - Math.PI / 2, duration: 1, ease: 'power.out' })
+  tl.to(startBtn.position, { y: 3, duration: 2 / 7, ease: 'none' }, '<')
+  tl.to(startBtn.position, { y: 0, duration: 5 / 7, ease: 'none' }, '>')
+  return tl
+  // const animateMesh = (mesh, index, tl) => {
+  //   tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
+  //   // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
+  // }
+  // const tl = gsap.timeline()
+  // combination.forEach(([x, y], index) => {
+  //   const fig = board3d[x][y]
+  //   animateMesh(fig, index, tl)
+  // })
 }
 
 // export const test = () => {
@@ -363,12 +400,101 @@ export const animateMesh = (mesh, index, tl) => {
 //   animateWin([[0, 0], [1, 1], [2, 2]])
 // }
 
+const fontLoader = new FontLoader()
+let font
+// loader.load('/three/fonts/' + fontName + '_' + fontWeight + '.typeface.json', function (response) {
+fontLoader.load('/models/Rajdhani_Bold.json', function (response) {
+  font = response
+  showStartScreen()
+})
+
 const showStartScreen = () => {
   // camera.rotation.x = -Math.PI / 2
-  startBtn = new Mesh(OGeometry, OMaterial)
-  startBtn.rotation.y = Math.PI / 4
-  startBtn.position.x = 0
-  startBtn.position.z = -30
+  // startBtn = new Mesh(OGeometry, OMaterial)
+  // startBtn.rotation.y = Math.PI / 4
+  // startBtn.position.x = 0
+  // startBtn.position.z = -30
+  // startBtn.name = 'startBtn'
+  // scene.add(startBtn)
+
+  const height = 1
+  const size = 6
+  const curveSegments = 25
+  // const bevelThickness = 0.3
+  // const bevelSize = 0.1
+  // const bevelEnabled = false
+  // const bevelOffset = 0
+  // const bevelSegments = 5
+  // const createWord = text => {
+  //
+  // }
+  const textGeo = new TextGeometry('start', {
+    font,
+    size,
+    height,
+    curveSegments
+  })
+
+  const textGeometry = new BufferGeometry().fromGeometry(textGeo)
+
+  const materials = [
+    // new MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
+    XMaterial,
+    XMaterial
+    // new MeshPhongMaterial({ color: 0xffffff }) // side
+  ]
+  const startBtn1 = new Mesh(textGeometry, materials)
+  textGeometry.computeBoundingBox()
+  textGeometry.boundingBox.getCenter()
+
+  textGeometry.boundingBox.getCenter(startBtn1.position).multiplyScalar(-1).add(new Vector3(0, 0.7, 0))
+  startBtn1.name = 'startBtn'
+
+  startBtn = new Object3D()
+  startBtn.add(startBtn1)
+  startBtn.position.x = 0 // centerOffsetX
+  startBtn.position.y = 0
+  startBtn.position.z = -30 // centerOffsetY * 7 / 10 - 30
+  startBtn.rotation.x = -Math.PI / 2
   startBtn.name = 'startBtn'
   scene.add(startBtn)
+
+  // create a blue LineBasicMaterial
+  var material = new LineBasicMaterial({ color: 0xff0000 })
+
+  var points = []
+  points.push(startBtn1.position.clone().add(new Vector3(0, 0, -30)))
+  points.push(startBtn1.position.clone().add(new Vector3(-15, 0, -30)))
+  points.push(startBtn1.position.clone().add(new Vector3(15, 0, -30)))
+
+  var geometry = new BufferGeometry().setFromPoints(points)
+  var line = new Line(geometry, material)
+  scene.add(line)
+
+  /*   startBtn = new Mesh(textGeometry, materials)
+    // textGeometry.computeBoundingBox()
+    // textGeometry.boundingBox.getCenter(startBtn1.position).multiplyScalar(-1)
+    // startBtn1.name = 'startBtn'
+    //
+    // startBtn = new Object3D()
+    // startBtn.add(startBtn1)
+    startBtn.position.x = centerOffsetX
+    startBtn.position.y = 0
+    startBtn.position.z = centerOffsetY * 7 / 10 - 30
+    startBtn.rotation.x = -Math.PI / 2
+    startBtn.name = 'startBtn'
+    scene.add(startBtn) */
 }
+
+/*  if (mirror) {
+    textMesh2 = new THREE.Mesh(textGeo, materials)
+
+    textMesh2.position.x = centerOffset
+    textMesh2.position.y = -hover
+    textMesh2.position.z = height
+
+    textMesh2.rotation.x = Math.PI
+    textMesh2.rotation.y = Math.PI * 2
+
+    group.add(textMesh2)
+  } */
