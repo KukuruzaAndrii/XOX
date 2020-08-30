@@ -24,7 +24,7 @@ test('twoMovesInRow', () => {
 })
 
 test('continue', () => {
-  expect(game1.status()).toMatchObject({ status: 'continue' })
+  expect(game1.status()).toMatchObject({ code: 'continue' })
 })
 
 test('win-horisontal', () => {
@@ -63,7 +63,7 @@ test('win-horisontal', () => {
     ['', '', '']
   ])
   expect(game2.status()).toMatchObject({
-    status: 'victory',
+    code: 'victory',
     combination: [[0, 0], [0, 1], [0, 2]],
     winner: first
   })
@@ -111,7 +111,7 @@ test('win-vertical', () => {
     ['', 'o', 'x']
   ])
   expect(game2.status()).toMatchObject({
-    status: 'victory',
+    code: 'victory',
     combination: [[0, 1], [1, 1], [2, 1]],
     winner: second
   })
@@ -152,7 +152,7 @@ test('win-diagonal', () => {
     ['', '', 'x']
   ])
   expect(game2.status()).toMatchObject({
-    status: 'victory',
+    code: 'victory',
     combination: [[0, 0], [1, 1], [2, 2]],
     winner: first
   })
@@ -222,6 +222,6 @@ test('draw', () => {
     ['o', 'x', 'o']
   ])
   expect(game2.status()).toMatchObject({
-    status: 'draw'
+    code: 'draw'
   })
 })

@@ -53,7 +53,7 @@ module.exports = class XOXGame {
         const winCombination = combinations.find(testWin(player))
         if (winCombination) {
           return {
-            status: 'victory',
+            code: 'victory',
             combination: winCombination,
             winner: player
           }
@@ -63,11 +63,11 @@ module.exports = class XOXGame {
       for (let x = 0; x < this.board.length; x++) {
         for (let y = 0; y < this.board.length; y++) {
           if (this.board[x][y] === '') {
-            return { status: 'continue' }
+            return { code: 'continue' }
           }
         }
       }
-      return { status: 'draw' }
+      return { code: 'draw' }
     }
     this.lastStatus = checkStatus()
     return this.lastStatus
