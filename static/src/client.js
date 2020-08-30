@@ -57,7 +57,7 @@ window.addEventListener('click', () => {
 const animate = () => {
   requestAnimationFrame(animate)
   stats.update()
-  logDebug(`${mouse.x} ${mouse.y}`)
+  // logDebug(`${mouse.x} ${mouse.y}`)
   view.update(mouse)
   rayCaster.setFromCamera(mouse, camera)
   if (playerOrder && !gameOver) {
@@ -102,9 +102,9 @@ const animate = () => {
   isClick = false
 }
 
-document.querySelector('#replay').addEventListener('click', e => {
-  // sock.emit('replay')
-})
+// document.querySelector('#replay').addEventListener('click', e => {
+//   sock.emit('replay')
+// })
 
 const connect = () => {
 // eslint-disable-next-line no-undef
@@ -192,7 +192,7 @@ const move = (x, y, sock) => {
 const setMessage = (id, message) => {
   document.querySelector(`#${id}`).innerHTML = message
 }
-const logDebug = log => setMessage('debug', log)
+// const logDebug = log => setMessage('debug', log)
 
 const convertGlobalToCell = x => Math.min(Math.floor(Math.abs(x / 3)), 1) * Math.sign(x) + 1
 

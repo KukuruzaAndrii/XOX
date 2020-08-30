@@ -11,7 +11,7 @@ import {
   SmoothShading,
   Mesh,
   PlaneGeometry,
-  AxesHelper,
+  // AxesHelper,
   TextGeometry,
   BufferGeometry,
   FontLoader,
@@ -147,8 +147,8 @@ export const init = () => {
   // renderer.shadowMap.enabled = true;
   // scene.background = new THREE.Color(0x8FBCD4)
 
-  const axesHelper = new AxesHelper(10)
-  scene.add(axesHelper)
+  // const axesHelper = new AxesHelper(10)
+  // scene.add(axesHelper)
   const geometry = new PlaneGeometry(25, 25)
   const material = new MeshStandardMaterial({
     color: 0xaaaaaa,
