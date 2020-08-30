@@ -12,14 +12,14 @@ import {
   scene,
   init,
   animateWin,
-  animateStart,
+  // animateStart,
   startBtn,
   view,
   restart
 } from './3D.js'
 import { SmartWS } from './smartWS.js'
 
-let animateS
+// let animateS
 const plane = init()
 view.init()
 const board = [
@@ -61,13 +61,13 @@ const animate = () => {
   view.update(mouse)
   rayCaster.setFromCamera(mouse, camera)
   if (playerOrder && !gameOver) {
-    const intersects = startBtn ? rayCaster.intersectObjects([plane, startBtn.children[0]]) : rayCaster.intersectObjects([plane])
+    const childrens = startBtn ? startBtn.children.map(ch => ch.children[0]) : []
+    const intersects = rayCaster.intersectObjects([plane, ...childrens]) // : rayCaster.intersectObjects([plane])
     if (intersects.length === 1) {
       const [{ point, object }] = intersects
-      if (object.name === 'startBtn') {
+      if (object.name.startsWith('startBtn')) {
         // animate start
-        if (!animateS) animateS = animateStart()
-        if (!animateS.isActive()) animateS.restart()
+        if (!object.animation.isActive()) object.animation.restart()
         if (isClick) {
           // start game
           // debugger
@@ -104,7 +104,6 @@ const animate = () => {
 
 document.querySelector('#replay').addEventListener('click', e => {
   // sock.emit('replay')
-  if (!animateS.isActive()) animateS.restart()
 })
 
 const connect = () => {

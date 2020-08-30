@@ -16,9 +16,10 @@ import {
   BufferGeometry,
   FontLoader,
   Object3D,
-  Vector3,
-  LineBasicMaterial,
-  Line
+  Vector3
+  // BoxHelper,
+  // LineBasicMaterial,
+  // Line,
   // Triangle
   // EdgesGeometry,
   // LineSegments,
@@ -375,40 +376,15 @@ export const restart = () => {
   }
 }
 
-export const animateStart = () => {
-  // return gsap.to(startBtn.rotation, { x: Math.PI + Math.PI / 2, duration: 5, ease: 'power.out', paused: true })
-  const tl = gsap.timeline()
-  tl.to(startBtn.rotation, { x: -2 * Math.PI - Math.PI / 2, duration: 1, ease: 'power.out' })
-  tl.to(startBtn.position, { y: 3, duration: 2 / 7, ease: 'none' }, '<')
-  tl.to(startBtn.position, { y: 0, duration: 5 / 7, ease: 'none' }, '>')
-  return tl
-  // const animateMesh = (mesh, index, tl) => {
-  //   tl.to(mesh.position, { y: 3, duration: 0.6, ease: 'power3.out' }, index === 0 ? '' : '-=0.4')
-  //   // tl.to(mesh.material.color, 1, { r: 0, g: 1, b: 0, ease: Power3.easeOut }, index === 0 ? '' : '-=0.4')
-  // }
-  // const tl = gsap.timeline()
-  // combination.forEach(([x, y], index) => {
-  //   const fig = board3d[x][y]
-  //   animateMesh(fig, index, tl)
-  // })
-}
-
-// export const test = () => {
-//   addX(0, 0)
-//   addX(1, 1)
-//   addX(2, 2)
-//   animateWin([[0, 0], [1, 1], [2, 2]])
-// }
-
 const fontLoader = new FontLoader()
 let font
 // loader.load('/three/fonts/' + fontName + '_' + fontWeight + '.typeface.json', function (response) {
 fontLoader.load('/models/Rajdhani_Bold.json', function (response) {
   font = response
-  showStartScreen()
+  showStartScreen(font)
 })
 
-const showStartScreen = () => {
+const showStartScreen = (font) => {
   // camera.rotation.x = -Math.PI / 2
   // startBtn = new Mesh(OGeometry, OMaterial)
   // startBtn.rotation.y = Math.PI / 4
@@ -425,51 +401,188 @@ const showStartScreen = () => {
   // const bevelEnabled = false
   // const bevelOffset = 0
   // const bevelSegments = 5
-  // const createWord = text => {
+  const animateLetter = (letterMesh) => {
+    const tl = gsap.timeline({ paused: true })
+    tl.to(letterMesh.rotation, { x: -2 * Math.PI, duration: 0.5, ease: 'power.out' })
+    tl.to(letterMesh.position, { z: 1, duration: 0.5, ease: 'none' }, '<')
+    tl.to(letterMesh.position, { z: 0, duration: 0.3, ease: 'none' }, '>')
+    return tl
+  }
+  const createWord = (word, font, height, size, curveSegments) => {
+    const createLetterMesh = (letter) => {
+      const letterGeometry = new BufferGeometry().fromGeometry(
+        new TextGeometry(
+          letter,
+          {
+            font,
+            size,
+            height,
+            curveSegments
+          })
+      )
+
+      const materials = [XMaterial, XMaterial]
+      const letterMesh = new Mesh(letterGeometry, materials)
+      letterMesh.name = `startBtn${letter}`
+      letterGeometry.computeBoundingBox()
+      return letterMesh
+
+      // console.log(letterGeometry.boundingBox)
+      // console.log(letterGeometry.boundingBox.getCenter())
+      // x: 1.8360000103712082
+      // y: 2.124000072479248
+      // letterMesh.position.x = -1.8360000103712082
+      // letterMesh.position.y = -2.124000072479248
+      // letterGeometry.boundingBox.getCenter(letterMesh.position).multiplyScalar(-1)// .add(new Vector3(0, 0.7, 0))
+      // const startBtn = new Object3D()
+      // startBtn.name = `startBtn${letter}`
+      // startBtn.add(letterMesh)
+      // debugger
+      // letterMesh.animation = animateLetter(startBtn)
+      // return startBtn
+    }
+
+    const letterMeshes = word.split('').map(l => createLetterMesh(l))
+    console.log(letterMeshes)
+    let word3D = new Object3D()
+    // letterMeshes.reduce((prev, curr, index) => {
+    //   console.log(curr.name)
+    //   const b = new BoxHelper(curr, 0xffff00)
+    //   console.log(curr.position.x, 'pos')
+    //   if (index !== 0) curr.position.x += 2 * centers[index - 1].x
+    // if (index !== 0) curr.position.x = prev.children[prev.children.length - 1].geometry.boundingBox.max.x
+    // prev.add(curr)
+    // prev.add(b)
+    // return prev
+    // }, new Object3D())
+
+    // for (let i = 0; i < letterMeshes.length; i++) {
+    //   const letterMesh = letterMeshes[i]
+    //
+    //   if (i !== 0) {
+    //     const m = letterMeshes[i - 1]
+    //     const c = m.geometry.boundingBox.max.x // - m.geometry.boundingBox.min.x
+    //     letterMesh.position.x = c + letterMeshes[i - 1].position.x
+    //     // b.position.x = c + letterMeshes[i - 1].position.x
+    //
+    //   }
+    //   const b = new BoxHelper(letterMesh, 0xffff00)
+    //
+    //   // console.log(letterMesh.position.x)
+    //   word3D.add(letterMesh)
+    //   word3D.add(b)
+    // }
+    // return word3D
+
+    const centers = letterMeshes.map(m => m.geometry.boundingBox.getCenter(new Vector3()))
+    const centersY = centers.map(c => c.y)
+    // centersY.sort((a, b) => a - b)
+    // console.log(centersY)
+    const maxFrequentlyY = mostCommonNumber(centersY)
+    const letterParents = []
+    for (let i = 0; i < letterMeshes.length; i++) {
+      const m = letterMeshes[i]
+      // m.position.x = -centers[i].x
+      m.position.y = -maxFrequentlyY
+      // const b = new BoxHelper(m, 0xffff00)
+      const obj = new Object3D()
+      // if (index !== 0) obj.position.x = 2 * centers[index].x
+      // obj.add(b)
+      // b.geometry.computeBoundingBox()
+      console.log(m.geometry.boundingBox.max.x - m.geometry.boundingBox.min.x)
+      // console.log(b.geometry.boundingBox.max.x - b.geometry.boundingBox.min.x)
+      // console.log(b)
+      console.log(2 * centers[i].x)
+      obj.add(m)
+      m.animation = animateLetter(obj)
+      obj.name = m.name
+      // return obj
+      letterParents.push(obj)
+    }
+    /*    const letterParents = letterMeshes.map((m, index) => {
+          m.position.x = centers[index].x
+          m.position.y = maxFrequentlyY
+          const obj = new Object3D()
+          // if (index !== 0) obj.position.x = 2 * centers[index].x
+          obj.add(m)
+          m.animation = animateLetter(obj)
+          obj.name = m.name
+          return obj
+        }) */
+    console.log(letterParents)
+    word3D = new Object3D()
+    console.log(centers)
+    for (let i = 0; i < letterParents.length; i++) {
+      const letterParent = letterParents[i]
+      if (i !== 0) {
+        const m = letterParents[i - 1].children[0]
+        const c = m.geometry.boundingBox.max.x // - m.geometry.boundingBox.min.x
+        letterParent.position.x = c + letterParents[i - 1].position.x
+      }
+      console.log(letterParent.position.x)
+      word3D.add(letterParent)
+    }
+    // const word3D = letterParents.reduce((prev, curr, index) => {
+    //   console.log(curr.name)
+    //   if (index !== 0) curr.position.x += 2 * centers[index - 1].x
+    //   prev.add(curr)
+    //   return prev
+    // }, new Object3D())
+
+    return word3D
+  }
+
+  // const textGeo = new TextGeometry('start', {
+  //   font,
+  //   size,
+  //   height,
+  //   curveSegments
+  // })
   //
-  // }
-  const textGeo = new TextGeometry('start', {
-    font,
-    size,
-    height,
-    curveSegments
-  })
+  // const textGeometry = new BufferGeometry().fromGeometry(textGeo)
+  //
+  // const materials = [
+  //   new MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
+  // XMaterial,
+  // XMaterial
+  // new MeshPhongMaterial({ color: 0xffffff }) // side
+  // ]
+  // const startBtn1 = new Mesh(textGeometry, materials)
+  // textGeometry.computeBoundingBox()
+  // textGeometry.boundingBox.getCenter()
+  //
+  // textGeometry.boundingBox.getCenter(startBtn1.position).multiplyScalar(-1).add(new Vector3(0, 0.7, 0))
+  // startBtn1.name = 'startBtn'
 
-  const textGeometry = new BufferGeometry().fromGeometry(textGeo)
-
-  const materials = [
-    // new MeshPhongMaterial({ color: 0xffffff, flatShading: true }), // front
-    XMaterial,
-    XMaterial
-    // new MeshPhongMaterial({ color: 0xffffff }) // side
-  ]
-  const startBtn1 = new Mesh(textGeometry, materials)
-  textGeometry.computeBoundingBox()
-  textGeometry.boundingBox.getCenter()
-
-  textGeometry.boundingBox.getCenter(startBtn1.position).multiplyScalar(-1).add(new Vector3(0, 0.7, 0))
-  startBtn1.name = 'startBtn'
-
-  startBtn = new Object3D()
-  startBtn.add(startBtn1)
-  startBtn.position.x = 0 // centerOffsetX
+  // const s = createLetter('s', font)
+  // const t = createLetter('t', font)
+  // t.position.x = 3.5
+  // const a = createLetter('a', font)
+  // a.position.x = 6.5
+  // const r = createLetter('r', font)
+  // r.position.x = 9.5
+  // const t2 = createLetter('t', font)
+  // t2.position.x = 12.5
+  startBtn = createWord('start', font, height, size, curveSegments)
+  // startBtn.add(s, t, a, r, t2)
+  startBtn.position.x = -7 // centerOffsetX
   startBtn.position.y = 0
   startBtn.position.z = -30 // centerOffsetY * 7 / 10 - 30
   startBtn.rotation.x = -Math.PI / 2
   startBtn.name = 'startBtn'
+  // startBtn.add(...w)
   scene.add(startBtn)
-
   // create a blue LineBasicMaterial
-  var material = new LineBasicMaterial({ color: 0xff0000 })
-
-  var points = []
-  points.push(startBtn1.position.clone().add(new Vector3(0, 0, -30)))
-  points.push(startBtn1.position.clone().add(new Vector3(-15, 0, -30)))
-  points.push(startBtn1.position.clone().add(new Vector3(15, 0, -30)))
-
-  var geometry = new BufferGeometry().setFromPoints(points)
-  var line = new Line(geometry, material)
-  scene.add(line)
+  // var material = new LineBasicMaterial({ color: 0xff0000 })
+  //
+  // var points = []
+  // points.push(startBtn1.position.clone().add(new Vector3(0, 0, -30)))
+  // points.push(startBtn1.position.clone().add(new Vector3(-15, 0, -30)))
+  // points.push(startBtn1.position.clone().add(new Vector3(15, 0, -30)))
+  //
+  // var geometry = new BufferGeometry().setFromPoints(points)
+  // var line = new Line(geometry, material)
+  // scene.add(line)
 
   /*   startBtn = new Mesh(textGeometry, materials)
     // textGeometry.computeBoundingBox()
@@ -498,3 +611,20 @@ const showStartScreen = () => {
 
     group.add(textMesh2)
   } */
+const mostCommonNumber = numbers => {
+  const map = new Map()
+  for (const num of numbers) {
+    map.set(num, (map.get(num) || 0) + 1)
+  }
+
+  let mostCommonNumber = NaN
+  let maxCount = -1
+  for (const [num, count] of map.entries()) {
+    if (count > maxCount) {
+      maxCount = count
+      mostCommonNumber = num
+    }
+  }
+
+  return mostCommonNumber
+}
