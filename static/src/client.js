@@ -61,16 +61,20 @@ const animate = () => {
   view.update(mouse)
   rayCaster.setFromCamera(mouse, camera)
   if (playerOrder && !gameOver) {
-    const childrens = startBtn ? startBtn.children.map(ch => ch.children[0]) : []
-    const intersects = rayCaster.intersectObjects([plane, ...childrens]) // : rayCaster.intersectObjects([plane])
+    const children = startBtn ? startBtn.children.map(ch => ch.children[0]) : []
+    const intersects = rayCaster.intersectObjects([plane, ...children]) // : rayCaster.intersectObjects([plane])
     if (intersects.length === 1) {
       const [{ point, object }] = intersects
       if (object.name.startsWith('startBtn')) {
+        // change color on hover
+        if (!startBtn.animateHover.isActive()) startBtn.animateHover.play()
+
         // animate start
         if (!object.animation.isActive()) object.animation.restart()
+
+        document.body.style.cursor = 'pointer'
         if (isClick) {
           // start game
-          // debugger
           console.log('start')
           isClick = false
           view.start()
@@ -95,6 +99,12 @@ const animate = () => {
         const p = place(playerOrder)
         p.position.x = -100
         p.position.z = -100
+      }
+    } else {
+      document.body.style.cursor = 'default'
+
+      if (!startBtn.animateHover.reversed()) {
+        startBtn.animateHover.reverse()
       }
     }
   }

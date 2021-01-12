@@ -16,7 +16,8 @@ import {
   BufferGeometry,
   FontLoader,
   Object3D,
-  Vector3
+  Vector3,
+  Color
   // BoxHelper,
   // LineBasicMaterial,
   // Line,
@@ -401,13 +402,19 @@ const showStartScreen = (font) => {
   // const bevelEnabled = false
   // const bevelOffset = 0
   // const bevelSegments = 5
-  const animateLetter = (letterMesh) => {
+  const animateLetter = letterMesh => {
     const tl = gsap.timeline({ paused: true })
     tl.to(letterMesh.rotation, { x: -2 * Math.PI, duration: 0.5, ease: 'power.out' })
     tl.to(letterMesh.position, { z: 1, duration: 0.5, ease: 'none' }, '<')
     tl.to(letterMesh.position, { z: 0, duration: 0.3, ease: 'none' }, '>')
     return tl
   }
+  const animateColor = (fromColor, toColor) => {
+    const tl = gsap.timeline({ paused: true })
+    tl.to(fromColor, { r: toColor.r, g: toColor.g, b: toColor.b, duration: 1.5, ease: 'power.in' })
+    return tl
+  }
+  const letterMaterial = XMaterial.clone()
   const createWord = (word, font, height, size, curveSegments) => {
     const createLetterMesh = (letter) => {
       const letterGeometry = new BufferGeometry().fromGeometry(
@@ -421,8 +428,8 @@ const showStartScreen = (font) => {
           })
       )
 
-      const materials = [XMaterial, XMaterial]
-      const letterMesh = new Mesh(letterGeometry, materials)
+      // const materials = [XMaterial, XMaterial]
+      const letterMesh = new Mesh(letterGeometry, letterMaterial)
       letterMesh.name = `startBtn${letter}`
       letterGeometry.computeBoundingBox()
       return letterMesh
@@ -444,7 +451,7 @@ const showStartScreen = (font) => {
 
     const letterMeshes = word.split('').map(l => createLetterMesh(l))
     console.log(letterMeshes)
-    let word3D = new Object3D()
+    // let word3D = new Object3D()
     // letterMeshes.reduce((prev, curr, index) => {
     //   console.log(curr.name)
     //   const b = new BoxHelper(curr, 0xffff00)
@@ -510,7 +517,7 @@ const showStartScreen = (font) => {
           return obj
         }) */
     console.log(letterParents)
-    word3D = new Object3D()
+    const word3D = new Object3D()
     console.log(centers)
     for (let i = 0; i < letterParents.length; i++) {
       const letterParent = letterParents[i]
@@ -570,6 +577,7 @@ const showStartScreen = (font) => {
   startBtn.position.z = -30 // centerOffsetY * 7 / 10 - 30
   startBtn.rotation.x = -Math.PI / 2
   startBtn.name = 'startBtn'
+  startBtn.animateHover = animateColor(letterMaterial.color, new Color(1, 1, 1))
   // startBtn.add(...w)
   scene.add(startBtn)
   // create a blue LineBasicMaterial
@@ -597,6 +605,12 @@ const showStartScreen = (font) => {
     startBtn.rotation.x = -Math.PI / 2
     startBtn.name = 'startBtn'
     scene.add(startBtn) */
+  const loader = document.querySelector('.loader-wrapper')
+  loader.style.transition = '1s'
+  loader.style.opacity = '0'
+  setTimeout(() => {
+    loader.style.display = 'none'
+  }, 1000)
 }
 
 /*  if (mirror) {

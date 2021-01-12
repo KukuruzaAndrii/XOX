@@ -15,7 +15,7 @@ module.exports = class XOXGame {
         code: 'wrongPlayer'
       }
     }
-    if (this.lastPlayer === player) {
+    if (this.#lastPlayer === player) {
       return {
         isSuccess: false,
         code: 'twoMovesInRow'
@@ -34,7 +34,7 @@ module.exports = class XOXGame {
       }
     }
     this.board[x][y] = player
-    this.lastPlayer = player
+    this.#lastPlayer = player
     return {
       isSuccess: true
     }
@@ -69,8 +69,8 @@ module.exports = class XOXGame {
       }
       return { code: 'draw' }
     }
-    this.lastStatus = checkStatus()
-    return this.lastStatus
+    this.#lastStatus = checkStatus()
+    return this.#lastStatus
   }
 
   static createBoard () {
