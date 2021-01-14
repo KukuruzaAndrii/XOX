@@ -10,5 +10,5 @@ Server
 Client
  - three.js
  
- Demo (heroku) (use 2 tabs to emulate 2 players):  
+ Demo on heroku (❗slow cold run, about 30 sec❗) (use 2 tabs to emulate 2 players):  
  https://xox-xox.herokuapp.com/
